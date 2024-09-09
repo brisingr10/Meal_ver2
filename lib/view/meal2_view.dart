@@ -50,7 +50,7 @@ class Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text('끼니', style: TextStyle(fontSize: 80, color: Theme.of(context).textTheme.bodyLarge?.color)),
+        Text('끼니', style: TextStyle(fontFamily: 'Myfont',fontSize: 80, color: Theme.of(context).textTheme.bodyLarge?.color)),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
