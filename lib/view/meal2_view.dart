@@ -1,21 +1,5 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: Text('끼니')),
-        body: Meal2View(),
-      ),
-    );
-  }
-}
-
 class Meal2View extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
