@@ -3,19 +3,23 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import '../model/PlanData.dart';
 import '../model/bible.dart';
 import '../util//Globals.Dart';
-import '../network/Plan.dart';
+import '../network/plan.dart';
 import '../model/Verse.dart';
 
 class MainViewModel extends ChangeNotifier {
   late SharedPreferences _sharedPreferences;
   int themeIndex = 0;
   List<Plan> planList = [];
-  late Plan todayPlan;
   late Bible bible;
+  late Plan todayPlan;
   late Book todaybook;
+  late PlanData planData;
   String todayDescription = "";
+  List<Verse> dataSource = [];
+  List<bool> checkBoxList = [false, false, false];
   String scheduleDate = "";
 
   MainViewModel(){
@@ -86,7 +90,7 @@ class MainViewModel extends ChangeNotifier {
   // API로부터 meal plan 받아오기
   Future<void> _getMealPlan() async {
     try {
-      final response = await http.get(Uri.parse(""));
+      final response = await http.get(Uri.parse("http://10.0.2.2:3000/mealPlan"));
       if (response.statusCode == 200) {
         List<dynamic> planListJson = jsonDecode(response.body);
         planList = planListJson.map((plan) => Plan.fromJson(plan)).toList();

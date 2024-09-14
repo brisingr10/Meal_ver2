@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart';
 
 class Globals {
-  static const String APP_SERVER_URL = "";
+  static const String APP_SERVER_URL = "http://10.0.2.2:3000";
 
   static const List<String> requiredPermissions = [
     "android.permission.INTERNET",
