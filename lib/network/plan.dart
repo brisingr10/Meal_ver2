@@ -21,6 +21,10 @@ class Plan {
     this.lVer,
   });
 
+  @override
+  String toString() {
+    return 'Plan(day: $day, book: $book, fChap: $fChap, fVer: $fVer, lChap: $lChap, lVer: $lVer)';
+  }
   // JSON 직렬화/역직렬화 함수
   factory Plan.fromJson(Map<String, dynamic> json) => _$PlanFromJson(json);
   Map<String, dynamic> toJson() => _$PlanToJson(this);

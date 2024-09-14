@@ -1,20 +1,25 @@
-class Verse{
-  final int number;
-  final String text;
+class Verse {
+  final String book;
+  final String btext;
+  final int chapter;
+  final int id;
+  final int verse;
 
-  Verse({required this.number, required this.text});
+  Verse({
+    required this.book,
+    required this.btext,
+    required this.chapter,
+    required this.id,
+    required this.verse,
+  });
 
-  factory Verse.fromJson(Map<String, dynamic> json){
+  factory Verse.fromJson(Map<String, dynamic> json) {
     return Verse(
-      number: json['number'] as int,
-      text: json['text'] as String,
+      book: json['book'] ?? 0, // null 처리: 기본값 0
+      btext: json['btext'] ?? '', // null 처리: 기본값 빈 문자열
+      chapter: json['chapter'] ?? 0, // null 처리: 기본값 0
+      id: json['id'] ?? 0, // null 처리: 기본값 0
+      verse: json['verse'] ?? 0, // null 처리: 기본값 0
     );
-  }
-
-  Map<String, dynamic> toJson(){
-    return {
-      'number':number,
-      'text':text,
-    };
   }
 }

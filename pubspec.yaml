@@ -66,6 +66,7 @@ flutter:
   uses-material-design: true
   assets:
     - lib/repository/font/nanumbrush.ttf
+    - lib/repository/bib_json/개역개정.json
   fonts:
     - family: Myfont
       fonts:
