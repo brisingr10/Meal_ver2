@@ -25,7 +25,6 @@ class MainViewModel extends ChangeNotifier {
   String scheduleDate = "";
 
   MainViewModel(){
-
     loadPreferences();
   }
 
@@ -40,8 +39,6 @@ class MainViewModel extends ChangeNotifier {
     if (bible != null && bible!.books.isNotEmpty) {
       getTodayPlan();
     }
-
-    notifyListeners();
   }
 
   Future<void> _configBible() async {
@@ -115,9 +112,8 @@ class MainViewModel extends ChangeNotifier {
       todayPlan = checkedPlan;
       print("exist todayPlan: ${todayPlan.toString()}");
       _updateTodayPlan();
-      // 상태가 변경될 때만 notifyListeners 호출
-      notifyListeners();
-    } else {
+
+    } else if (checkedPlan == null) {
       print("Meal plan has not changed, skipping update.");
       _getMealPlan();  // API에서 meal plan을 가져오도록 함
     }
@@ -146,7 +142,8 @@ class MainViewModel extends ChangeNotifier {
           planList = newPlanList;
           _saveMealPlan();
           _getPlanData();
-          notifyListeners();  // 상태가 변경될 때만 알림
+          // 상태가 변경될 때만 알림
+          notifyListeners();
         } else {
           print("Meal plan has not changed, skipping update.");
         }
@@ -257,6 +254,7 @@ class MainViewModel extends ChangeNotifier {
     }
 
     // 구절 리스트를 데이터 소스로 설정
+    List<Verse> oldDataSource = List.from(dataSource);
     dataSource = List<Verse>.generate(verseList.length, (index) {
       return Verse(
         id: verseNumList[index],
@@ -270,7 +268,6 @@ class MainViewModel extends ChangeNotifier {
     {
       print(i.btext.toString());
     }
-    notifyListeners();
   }
 
   // 오늘의 인덱스 가져오기
