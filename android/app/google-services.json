@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "952450176431",
+    "firebase_url": "https://daily-meal-giy5tu-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "daily-meal-giy5tu",
+    "storage_bucket": "daily-meal-giy5tu.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:952450176431:android:5fb2158ec30b8c4db18b5a",
+        "android_client_info": {
+          "package_name": "com.mealplanner.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBeAWjMwuFFgTXE-iv1LAOwOHYVUjkS_sE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
