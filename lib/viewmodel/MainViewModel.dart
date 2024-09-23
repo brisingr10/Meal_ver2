@@ -15,12 +15,15 @@ class MainViewModel extends ChangeNotifier {
   int themeIndex = 0;
   List<Plan> planList = [];
   Bible? bible;
+  Bible? subbible;
   late Plan todayPlan;
   Book? todayBook;
+  Book? subtodayBook;
   late PlanData planData;
   String today="";
   String todayDescription = "";
   List<Verse> dataSource = [];
+  List<Verse> subdataSource = [];
   List<bool> checkBoxList = [false, false, false];
   String scheduleDate = "";
 
@@ -45,13 +48,15 @@ class MainViewModel extends ChangeNotifier {
     try {
       // JSON 파일을 로드 (Flutter에서는 rootBundle을 사용하여 파일 읽기)
       String bibleJsonString = await rootBundle.loadString('lib/repository/bib_json/개역개정.json');
-
+      String SubbibleJsonString = await rootBundle.loadString('lib/repository/bib_json/개역한글.json');
       // JSON 데이터를 파싱하여 Bible 객체로 변환
       final jsonData = jsonDecode(bibleJsonString) as List<dynamic>;
+      final subjsonData = jsonDecode(SubbibleJsonString) as List<dynamic>;
       bible = Bible.fromJson(jsonData);
+      subbible = Bible.fromJson(subjsonData);
 
       // bible이 올바르게 로드되었는지 확인
-      if (bible != null && bible!.books.isNotEmpty) {
+      if (bible != null && bible!.books.isNotEmpty && subbible != null && subbible!.books.isNotEmpty) {
         print('Bible data loaded successfully');
       } else {
         print('Error: Bible data is empty');
@@ -177,7 +182,7 @@ class MainViewModel extends ChangeNotifier {
 
   // 오늘의 계획 업데이트
   void _updateTodayPlan() {
-    if (bible == null || bible!.books.isEmpty) {
+    if (bible == null || bible!.books.isEmpty && subbible == null || subbible!.books.isEmpty) {
       print('Error: Bible has not been loaded or is empty.');
       return;
     }
@@ -191,8 +196,13 @@ class MainViewModel extends ChangeNotifier {
       orElse: () => Book(book: '', btext: '', chapter: 0, verse: 0, id: 0),
     );
 
+    subtodayBook = subbible!.books.firstWhere(
+          (book) => book.book == todayPlan.book,
+      orElse: () => Book(book: '', btext: '', chapter: 0, verse: 0, id: 0),
+    );
+
     // todayBook이 제대로 초기화되었는지 확인
-    if (todayBook!.book.isEmpty) {
+    if (todayBook!.book.isEmpty && subtodayBook!.book.isEmpty ) {
       print("Error: todayBook could not be found in bible.books.");
       return;
     }
@@ -205,6 +215,9 @@ class MainViewModel extends ChangeNotifier {
     // 성경 구절 업데이트 (성경 데이터를 기반으로 구절을 업데이트하는 부분)
     List<String> verseList = [];
     List<int> verseNumList = [];
+    List<String> subverseList = [];
+    List<int> subverseNumList = [];
+
     int startChapterIndex = todayPlan.fChap!;
     int startVerse = todayPlan.fVer!;
     int endChapterIndex = todayPlan.lChap!;
@@ -218,14 +231,28 @@ class MainViewModel extends ChangeNotifier {
           book.chapter == startChapterIndex
       ).toList();
 
+      final subchapterVerses = subbible!.books.where((book) =>
+      book.book == todayPlan.book &&
+          book.chapter == startChapterIndex
+      ).toList();
+
       // 구절을 추출하여 verseList에 추가
       verseList = chapterVerses
+          .where((book) => book.verse >= startVerse && book.verse <= endVerse)
+          .map((book) => book.btext)
+          .toList();
+      subverseList = subchapterVerses
           .where((book) => book.verse >= startVerse && book.verse <= endVerse)
           .map((book) => book.btext)
           .toList();
 
       // 구절 번호 업데이트
       verseNumList = chapterVerses
+          .where((book) => book.verse >= startVerse && book.verse <= endVerse)
+          .map((book) => book.verse)
+          .toList();
+
+      subverseNumList = subchapterVerses
           .where((book) => book.verse >= startVerse && book.verse <= endVerse)
           .map((book) => book.verse)
           .toList();
@@ -239,6 +266,11 @@ class MainViewModel extends ChangeNotifier {
             book.chapter == chapterIndex
         ).toList();
 
+        final subchapterVerses = subbible!.books.where((book) =>
+        book.book == todayPlan.book &&
+            book.chapter == chapterIndex
+        ).toList();
+
         int sliceStartIndex = (chapterIndex == startChapterIndex) ? startVerse : 1;
         int sliceEndIndex = (chapterIndex == endChapterIndex) ? endVerse : chapterVerses.length;
 
@@ -247,7 +279,15 @@ class MainViewModel extends ChangeNotifier {
             .where((book) => book.verse >= sliceStartIndex && book.verse <= sliceEndIndex)
             .map((book) => book.btext));
 
+        subverseList.addAll(subchapterVerses
+            .where((book) => book.verse >= sliceStartIndex && book.verse <= sliceEndIndex)
+            .map((book) => book.btext));
+
         verseNumList.addAll(chapterVerses
+            .where((book) => book.verse >= sliceStartIndex && book.verse <= sliceEndIndex)
+            .map((book) => book.verse));
+
+        subverseNumList.addAll(subchapterVerses
             .where((book) => book.verse >= sliceStartIndex && book.verse <= sliceEndIndex)
             .map((book) => book.verse));
       }
@@ -264,7 +304,22 @@ class MainViewModel extends ChangeNotifier {
         btext: verseList[index], // 구절 텍스트를 할당
       );
     });
+
+    subdataSource = List<Verse>.generate(subverseList.length, (index) {
+      return Verse(
+        id: subverseNumList[index],
+        book: todayPlan.book ?? 'Unknown', // 오늘의 책을 할당
+        chapter: startChapterIndex, // 해당 장을 할당
+        verse: subverseNumList[index], // 구절 번호를 할당
+        btext: subverseList[index], // 구절 텍스트를 할당
+      );
+    });
+
   for(var i in dataSource)
+    {
+      print(i.btext.toString());
+    }
+    for(var i in subdataSource)
     {
       print(i.btext.toString());
     }

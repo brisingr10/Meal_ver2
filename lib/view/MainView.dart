@@ -52,9 +52,9 @@ class _Meal2ViewState extends State<Meal2View> {
 
     // 데이터 로딩이 완료된 경우 실제 화면 표시
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Meal Plan'),
-      ),
+      //appBar: AppBar(
+        //title: Text('Meal Plan'),
+     // ),
       body: Container(
         color: Theme.of(context).colorScheme.background,
         child: Padding(
@@ -68,9 +68,17 @@ class _Meal2ViewState extends State<Meal2View> {
                   itemCount: viewModel.dataSource.length,
                   itemBuilder: (context, index) {
                     final verse = viewModel.dataSource[index];
+                    final subverse = viewModel.subdataSource[index];
                     return ListTile(
-                      title: Text(verse.btext),
-                      subtitle: Text('Chapter ${verse.chapter}, Verse ${verse.verse}'),
+                    title: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('${verse.verse}절', style: TextStyle(fontFamily: 'Biblefont', fontSize: MediaQuery.of(context).size.width*0.04)),
+                           Text(verse.btext, style: TextStyle(fontFamily:'Biblefont', fontSize: MediaQuery.of(context).size.width*0.04)),
+                          Text(subverse.btext, style: TextStyle(fontFamily:'Biblefont', fontSize: MediaQuery.of(context).size.width*0.035)),
+                        ],
+                    ),
+
                     );
                   },
                 ),
@@ -92,11 +100,11 @@ class Header extends StatelessWidget {
 
     return Column(
       children: [
-        Text('끼니', style: TextStyle(fontFamily: 'Myfont',fontSize: 80, color: Theme.of(context).textTheme.bodyLarge?.color)),
+        Text('끼니', style: TextStyle(fontFamily: 'Mealfont',fontSize: MediaQuery.of(context).size.width*0.10, color: Theme.of(context).textTheme.bodyLarge?.color)),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Today Info: ${viewModel.today}', style: TextStyle(fontSize: 16, color: Theme.of(context).textTheme.bodyLarge?.color)),
+            Text('오늘 날짜: ${viewModel.today}', style: TextStyle(fontFamily: 'Biblefont', fontSize: MediaQuery.of(context).size.width*0.035, color: Theme.of(context).textTheme.bodyLarge?.color)),
             IconButton(
               icon: Icon(Icons.calendar_today),
               onPressed: () {
@@ -106,7 +114,7 @@ class Header extends StatelessWidget {
           ],
         ),
         Divider(color: Colors.grey),
-        Text('Additional Info', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color)),
+        Text('', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color)),
       ],
     );
   }
