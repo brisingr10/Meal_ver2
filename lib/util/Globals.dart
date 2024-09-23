@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart';
 
 class Globals {
-  static const String APP_SERVER_URL = "";
+  static const String APP_SERVER_URL = "http://10.0.2.2:3000";
 
   static const List<String> requiredPermissions = [
     "android.permission.INTERNET",
@@ -11,7 +11,7 @@ class Globals {
   // 오늘 날짜를 "yyyy-MM-dd" 형식으로 변환
   static String todayString(){
     DateFormat formatter = DateFormat('yyyy-MM-dd');
-    String current = formatter.format(DateTime.now());
+    String current = formatter.format(DateTime.now().toLocal());
     print("today: $current");
     return current;
   }
