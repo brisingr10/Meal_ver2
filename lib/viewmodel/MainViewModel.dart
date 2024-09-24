@@ -43,6 +43,22 @@ class MainViewModel extends ChangeNotifier {
       getTodayPlan();
     }
   }
+  // Select 로드
+  Future<void> Selectload() async {
+
+    List<String> savedBibles = _sharedPreferences.getStringList('selectedBibles') ?? [];
+
+    // 성경 파일을 로드 (선택된 파일이 있는 경우)
+    if (savedBibles.isNotEmpty) {
+      await loadMultipleBibles(savedBibles);  // 사용자가 선택한 성경 파일들을 로드
+    }
+
+
+    // 성경이 제대로 로드되었다면 getTodayPlan을 호출
+    if (bible != null && bible!.books.isNotEmpty) {
+      getTodayPlan();
+    }
+  }
 
   Future<void> _configBible() async {
     try {
@@ -73,6 +89,38 @@ class MainViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> loadMultipleBibles(List<String> bibleFiles) async {
+    try {
+
+      if (bibleFiles.contains('개역개정.json')) {
+        String bibleJsonString = await rootBundle.loadString('lib/repository/bib_json/개역개정.json');
+        final jsonData = jsonDecode(bibleJsonString) as List<dynamic>;
+        bible = Bible.fromJson(jsonData);
+      }
+
+      if (bibleFiles.contains('개역한글.json')) {
+        String subbibleJsonString = await rootBundle.loadString('lib/repository/bib_json/개역한글.json');
+        final subjsonData = jsonDecode(subbibleJsonString) as List<dynamic>;
+        subbible = Bible.fromJson(subjsonData);
+      }
+
+      // bible이 올바르게 로드되었는지 확인
+      if (bible != null && bible!.books.isNotEmpty && subbible != null && subbible!.books.isNotEmpty) {
+        print('Bible data loaded successfully');
+      } else {
+        print('Error: Bible data is empty');
+      }
+
+      // 초기화 작업
+      planList = [];
+      todayPlan = Plan();
+      planData = PlanData();
+      dataSource = [];
+
+    } catch (e) {
+      print('Error loading Bible data: $e');
+    }
+  }
   // 테마 변경
   void changeTheme(int index) {
     themeIndex = index;

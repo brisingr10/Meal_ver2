@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:meal_ver2/viewmodel/MainViewModel.dart';
 import 'view/MainView.dart'; // MainView import
+import 'view/SelectBibleView.dart';
 
 void main() {
   runApp(
