@@ -56,7 +56,7 @@ class _Meal2ViewState extends State<Meal2View> {
     }
 
     @override
-    void disposer() {
+    void dispose() {
       _scrollController.dispose();
       super.dispose();
     }
