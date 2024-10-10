@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -20,107 +21,112 @@ class MainViewModel extends ChangeNotifier {
   Book? todayBook;
   Book? subtodayBook;
   late PlanData planData;
-  String today="";
+  String today = "";
   String todayDescription = "";
+  DateTime? selectedDate;
   List<Verse> dataSource = [];
   List<Verse> subdataSource = [];
   List<bool> checkBoxList = [false, false, false];
   String scheduleDate = "";
+  bool _isBibleLoaded = false; // 플래그 추가
+  bool _isLoading = true;
 
-  MainViewModel(){
+  bool get isLoading => _isLoading;
+
+  MainViewModel(SharedPreferences sharedPreferences) {
+    print('MainViewModel created');
+    _sharedPreferences = sharedPreferences;
     loadPreferences();
   }
 
   // SharedPreferences 로드
   Future<void> loadPreferences() async {
-    _sharedPreferences = await SharedPreferences.getInstance();
-    themeIndex = _sharedPreferences.getInt('themeIndex') ?? 0;
+    print("Loading SharedPreferences...");
+    _isLoading = true;
+    notifyListeners();
 
-    await _configBible();
+    try {
+      //_sharedPreferences = await SharedPreferences.getInstance();
+      print("SharedPreferences loaded.");
+      themeIndex = _sharedPreferences.getInt('themeIndex') ?? 0;
 
-    // 성경이 제대로 로드되었다면 getTodayPlan을 호출
-    if (bible != null && bible!.books.isNotEmpty) {
-      getTodayPlan();
-    }
-  }
-  // Select 로드
-  Future<void> Selectload() async {
+      if (!_isBibleLoaded) {
+        // 성경이 이미 로드되었는지 확인
+        await _configBible();
+      }
 
-    List<String> savedBibles = _sharedPreferences.getStringList('selectedBibles') ?? [];
-
-    // 성경 파일을 로드 (선택된 파일이 있는 경우)
-    if (savedBibles.isNotEmpty) {
-      await loadMultipleBibles(savedBibles);  // 사용자가 선택한 성경 파일들을 로드
-    }
-
-
-    // 성경이 제대로 로드되었다면 getTodayPlan을 호출
-    if (bible != null && bible!.books.isNotEmpty) {
-      getTodayPlan();
+      // 성경이 제대로 로드되었다면 getTodayPlan을 호출
+      if (bible != null && bible!.books.isNotEmpty) {
+        getTodayPlan();
+      }
+    } catch (e) {
+      print('Error loading preferences: $e');
+    } finally {
+      _isLoading = false; // 로딩 종료
+      print('Finished loading preferences.'); // 로딩 완료 로그
+      notifyListeners(); // UI 갱신
     }
   }
 
   Future<void> _configBible() async {
-    try {
-      // JSON 파일을 로드 (Flutter에서는 rootBundle을 사용하여 파일 읽기)
-      String bibleJsonString = await rootBundle.loadString('lib/repository/bib_json/개역개정.json');
-      String SubbibleJsonString = await rootBundle.loadString('lib/repository/bib_json/개역한글.json');
-      // JSON 데이터를 파싱하여 Bible 객체로 변환
-      final jsonData = jsonDecode(bibleJsonString) as List<dynamic>;
-      final subjsonData = jsonDecode(SubbibleJsonString) as List<dynamic>;
-      bible = Bible.fromJson(jsonData);
-      subbible = Bible.fromJson(subjsonData);
+    if (_isBibleLoaded) return; // 이미 로드되었으면 바로 반환
 
-      // bible이 올바르게 로드되었는지 확인
-      if (bible != null && bible!.books.isNotEmpty && subbible != null && subbible!.books.isNotEmpty) {
+    try {
+      bible = await _loadBibleFile('lib/repository/bib_json/개역개정.json');
+      subbible = await _loadBibleFile('lib/repository/bib_json/개역한글.json');
+
+      if (bible != null && subbible != null) {
+        _isBibleLoaded = true;
         print('Bible data loaded successfully');
       } else {
         print('Error: Bible data is empty');
       }
 
-      // 초기화 작업
-      planList = [];
+      planList.clear();
       todayPlan = Plan();
       planData = PlanData();
-      dataSource = [];
-
+      dataSource.clear();
     } catch (e) {
       print('Error loading Bible data: $e');
+    }
+  }
+
+  // 성경 파일 로드 함수
+  Future<Bible?> _loadBibleFile(String path) async {
+    try {
+      String bibleJsonString = await rootBundle.loadString(path);
+      final jsonData = jsonDecode(bibleJsonString) as List<dynamic>;
+      return Bible.fromJson(jsonData);
+    } catch (e) {
+      print('Error loading Bible file from $path: $e');
+      return null;
     }
   }
 
   Future<void> loadMultipleBibles(List<String> bibleFiles) async {
     try {
+      bible = bibleFiles.contains('개역개정.json')
+          ? await _loadBibleFile('lib/repository/bib_json/개역개정.json')
+          : null;
+      subbible = bibleFiles.contains('개역한글.json')
+          ? await _loadBibleFile('lib/repository/bib_json/개역한글.json')
+          : null;
 
-      if (bibleFiles.contains('개역개정.json')) {
-        String bibleJsonString = await rootBundle.loadString('lib/repository/bib_json/개역개정.json');
-        final jsonData = jsonDecode(bibleJsonString) as List<dynamic>;
-        bible = Bible.fromJson(jsonData);
-      }
-
-      if (bibleFiles.contains('개역한글.json')) {
-        String subbibleJsonString = await rootBundle.loadString('lib/repository/bib_json/개역한글.json');
-        final subjsonData = jsonDecode(subbibleJsonString) as List<dynamic>;
-        subbible = Bible.fromJson(subjsonData);
-      }
-
-      // bible이 올바르게 로드되었는지 확인
-      if (bible != null && bible!.books.isNotEmpty && subbible != null && subbible!.books.isNotEmpty) {
+      if (bible != null && subbible != null) {
         print('Bible data loaded successfully');
       } else {
         print('Error: Bible data is empty');
       }
 
-      // 초기화 작업
-      planList = [];
+      planList.clear();
       todayPlan = Plan();
       planData = PlanData();
-      dataSource = [];
-
+      dataSource.clear();
     } catch (e) {
       print('Error loading Bible data: $e');
     }
   }
+
   // 테마 변경
   void changeTheme(int index) {
     themeIndex = index;
@@ -151,6 +157,11 @@ class MainViewModel extends ChangeNotifier {
     return null;
   }
 
+  void setSelectedDate(DateTime? date) {
+    selectedDate = date;
+    getTodayPlan();
+  }
+
   // 오늘의 계획 불러오기
   void getTodayPlan() {
     if (bible == null || bible!.books.isEmpty) {
@@ -165,10 +176,9 @@ class MainViewModel extends ChangeNotifier {
       todayPlan = checkedPlan;
       print("exist todayPlan: ${todayPlan.toString()}");
       _updateTodayPlan();
-
     } else if (checkedPlan == null) {
       print("Meal plan has not changed, skipping update.");
-      _getMealPlan();  // API에서 meal plan을 가져오도록 함
+      _getMealPlan(); // API에서 meal plan을 가져오도록 함
     }
   }
 
@@ -184,26 +194,52 @@ class MainViewModel extends ChangeNotifier {
 
   // API로부터 meal plan 받아오기
   Future<void> _getMealPlan() async {
+    _isLoading = true; // 로딩 시작
+    notifyListeners();
+
     try {
-      final response = await http.get(Uri.parse("http://10.0.2.2:3000/mealPlan"));
+      final response = await http.get(Uri.parse("http://192.168.0.21:3000/mealPlan"));
       if (response.statusCode == 200) {
         List<dynamic> planListJson = jsonDecode(response.body);
-        List<Plan> newPlanList = planListJson.map((plan) => Plan.fromJson(plan)).toList();
+        List<Plan> newPlanList =
+            planListJson.map((plan) => Plan.fromJson(plan)).toList();
 
         // 새로운 planList와 기존의 planList가 다를 때만 업데이트
         if (!listEquals(newPlanList, planList)) {
           planList = newPlanList;
           _saveMealPlan();
           _getPlanData();
-          // 상태가 변경될 때만 알림
-          notifyListeners();
         } else {
           print("Meal plan has not changed, skipping update.");
         }
       }
     } catch (e) {
       print("Error fetching meal plan: $e");
+    } finally {
+      _isLoading = false; // 로딩 종료
+      notifyListeners(); // UI 갱신
     }
+  }
+
+  // Select 로드
+  Future<void> Selectload() async {
+    if (!_isBibleLoaded) {
+      // 성경이 이미 로드되었는지 확인하여 중복 로드 방지
+      await _configBible(); // 성경 로드
+    }
+    List<String> savedBibles =
+        _sharedPreferences.getStringList('selectedBibles') ?? [];
+
+    // 성경 파일을 로드 (선택된 파일이 있는 경우)
+    if (savedBibles.isNotEmpty) {
+      await loadMultipleBibles(savedBibles); // 사용자가 선택한 성경 파일들을 로드
+    }
+
+    // 성경이 제대로 로드되었다면 getTodayPlan을 호출
+    if (bible != null && bible!.books.isNotEmpty) {
+      getTodayPlan();
+    }
+    //notifyListeners(); // 데이터 로드 후 UI에 알림
   }
 
 // 리스트 비교 함수: 리스트가 같을 경우에는 상태 업데이트 방지
@@ -214,6 +250,7 @@ class MainViewModel extends ChangeNotifier {
     }
     return true;
   }
+
   // meal plan 저장
   void _saveMealPlan() {
     String jsonString = jsonEncode(planList);
@@ -222,15 +259,24 @@ class MainViewModel extends ChangeNotifier {
 
   // 오늘의 계획 데이터 처리
   void _getPlanData() {
-    String today = Globals.todayString();
-    todayPlan = planList.firstWhere((plan) => plan.day == today);
-    print("downloaded todayPlan: $todayPlan");
-    _updateTodayPlan();
+    String today = selectedDate != null
+        ? DateFormat('yyyy-MM-dd').format(selectedDate!)
+        : Globals.todayString(); // 선택한 날짜가 있으면 해당 날짜 사용
+
+    try {
+      todayPlan = planList.firstWhere((plan) => plan.day == today);
+      print("downloaded todayPlan: $todayPlan");
+      _updateTodayPlan();
+    } catch (e) {
+      print("Error: No plan found for the selected date.");
+    }
   }
 
   // 오늘의 계획 업데이트
   void _updateTodayPlan() {
-    if (bible == null || bible!.books.isEmpty && subbible == null || subbible!.books.isEmpty) {
+    if (bible == null ||
+        bible!.books.isEmpty && subbible == null ||
+        subbible!.books.isEmpty) {
       print('Error: Bible has not been loaded or is empty.');
       return;
     }
@@ -240,147 +286,87 @@ class MainViewModel extends ChangeNotifier {
 
     // todayBook을 bible 목록에서 찾기
     todayBook = bible!.books.firstWhere(
-          (book) => book.book == todayPlan.book,
+      (book) => book.book == todayPlan.book,
       orElse: () => Book(book: '', btext: '', chapter: 0, verse: 0, id: 0),
     );
 
     subtodayBook = subbible!.books.firstWhere(
-          (book) => book.book == todayPlan.book,
+      (book) => book.book == todayPlan.book,
       orElse: () => Book(book: '', btext: '', chapter: 0, verse: 0, id: 0),
     );
 
     // todayBook이 제대로 초기화되었는지 확인
-    if (todayBook!.book.isEmpty && subtodayBook!.book.isEmpty ) {
+    if (todayBook!.book.isEmpty && subtodayBook!.book.isEmpty) {
       print("Error: todayBook could not be found in bible.books.");
       return;
     }
     // 오늘의 성경 구절 설명 설정
-    todayDescription = "${todayPlan.book} ${todayPlan.fChap}:${todayPlan.fVer} - ${todayPlan.lChap}:${todayPlan.lVer}";
+    todayDescription =
+        "${todayPlan.book} ${todayPlan.fChap}:${todayPlan.fVer} - ${todayPlan.lChap}:${todayPlan.lVer}";
 
     // 날짜 업데이트
     scheduleDate = Globals.convertStringToDate(todayPlan.day!).toString();
 
-    // 성경 구절 업데이트 (성경 데이터를 기반으로 구절을 업데이트하는 부분)
-    List<String> verseList = [];
-    List<int> verseNumList = [];
-    List<String> subverseList = [];
-    List<int> subverseNumList = [];
+    _updateVerseList(todayPlan);
+  }
 
-    int startChapterIndex = todayPlan.fChap!;
-    int startVerse = todayPlan.fVer!;
-    int endChapterIndex = todayPlan.lChap!;
-    int endVerse = todayPlan.lVer!;
+  void _updateVerseList(Plan plan) {
+    dataSource.clear();
+    subdataSource.clear();
 
-    // 시작 장과 끝 장이 같은 경우
-    if (startChapterIndex == endChapterIndex) {
-      // 장과 구절에 해당하는 Book 객체 찾기
-      final chapterVerses = bible!.books.where((book) =>
-      book.book == todayPlan.book &&
-          book.chapter == startChapterIndex
-      ).toList();
+    List<Book> chapterVerses = _getBookChapters(bible!, plan);
+    List<Book> subchapterVerses = _getBookChapters(subbible!, plan);
 
-      final subchapterVerses = subbible!.books.where((book) =>
-      book.book == todayPlan.book &&
-          book.chapter == startChapterIndex
-      ).toList();
+    dataSource = chapterVerses
+        .map((book) => Verse(
+            id: book.verse,
+            book: plan.book ?? 'UnKnown',
+            chapter: book.chapter,
+            verse: book.verse,
+            btext: book.btext))
+        .toList();
+    subdataSource = subchapterVerses
+        .map((book) => Verse(
+            id: book.verse,
+            book: plan.book ?? 'UnKnown',
+            chapter: book.chapter,
+            verse: book.verse,
+            btext: book.btext))
+        .toList();
 
-      // 구절을 추출하여 verseList에 추가
-      verseList = chapterVerses
-          .where((book) => book.verse >= startVerse && book.verse <= endVerse)
-          .map((book) => book.btext)
-          .toList();
-      subverseList = subchapterVerses
-          .where((book) => book.verse >= startVerse && book.verse <= endVerse)
-          .map((book) => book.btext)
-          .toList();
+    dataSource.forEach((verse) => print(verse.btext));
+    subdataSource.forEach((verse) => print(verse.btext));
+  }
 
-      // 구절 번호 업데이트
-      verseNumList = chapterVerses
-          .where((book) => book.verse >= startVerse && book.verse <= endVerse)
-          .map((book) => book.verse)
-          .toList();
-
-      subverseNumList = subchapterVerses
-          .where((book) => book.verse >= startVerse && book.verse <= endVerse)
-          .map((book) => book.verse)
-          .toList();
-
-    }else {
-      // 시작 장과 끝 장이 다른 경우
-      for (int chapterIndex = startChapterIndex; chapterIndex <= endChapterIndex; chapterIndex++) {
-        // 각 장에 해당하는 구절들을 찾기
-        final chapterVerses = bible!.books.where((book) =>
-        book.book == todayPlan.book &&
-            book.chapter == chapterIndex
-        ).toList();
-
-        final subchapterVerses = subbible!.books.where((book) =>
-        book.book == todayPlan.book &&
-            book.chapter == chapterIndex
-        ).toList();
-
-        int sliceStartIndex = (chapterIndex == startChapterIndex) ? startVerse : 1;
-        int sliceEndIndex = (chapterIndex == endChapterIndex) ? endVerse : chapterVerses.length;
-
-        // 구절을 verseList와 verseNumList에 추가
-        verseList.addAll(chapterVerses
-            .where((book) => book.verse >= sliceStartIndex && book.verse <= sliceEndIndex)
-            .map((book) => book.btext));
-
-        subverseList.addAll(subchapterVerses
-            .where((book) => book.verse >= sliceStartIndex && book.verse <= sliceEndIndex)
-            .map((book) => book.btext));
-
-        verseNumList.addAll(chapterVerses
-            .where((book) => book.verse >= sliceStartIndex && book.verse <= sliceEndIndex)
-            .map((book) => book.verse));
-
-        subverseNumList.addAll(subchapterVerses
-            .where((book) => book.verse >= sliceStartIndex && book.verse <= sliceEndIndex)
-            .map((book) => book.verse));
-      }
+  List<Book> _getBookChapters(Bible bible, Plan plan) {
+    List<Book> chapters = [];
+    for (int chapterIndex = plan.fChap!;
+        chapterIndex <= plan.lChap!;
+        chapterIndex++) {
+      int startVerse = chapterIndex == plan.fChap ? plan.fVer! : 1;
+      int endVerse =
+          chapterIndex == plan.lChap ? plan.lVer! : bible.books.length;
+      chapters.addAll(bible.books
+          .where((book) =>
+              book.book == plan.book &&
+              book.chapter == chapterIndex &&
+              book.verse >= startVerse &&
+              book.verse <= endVerse)
+          .toList());
     }
+    return chapters;
+  }
 
-    // 구절 리스트를 데이터 소스로 설정
-    List<Verse> oldDataSource = List.from(dataSource);
-    dataSource = List<Verse>.generate(verseList.length, (index) {
-      return Verse(
-        id: verseNumList[index],
-        book: todayPlan.book ?? 'Unknown', // 오늘의 책을 할당
-        chapter: startChapterIndex, // 해당 장을 할당
-        verse: verseNumList[index], // 구절 번호를 할당
-        btext: verseList[index], // 구절 텍스트를 할당
-      );
-    });
-
-    subdataSource = List<Verse>.generate(subverseList.length, (index) {
-      return Verse(
-        id: subverseNumList[index],
-        book: todayPlan.book ?? 'Unknown', // 오늘의 책을 할당
-        chapter: startChapterIndex, // 해당 장을 할당
-        verse: subverseNumList[index], // 구절 번호를 할당
-        btext: subverseList[index], // 구절 텍스트를 할당
-      );
-    });
-
-  for(var i in dataSource)
-    {
-      print(i.btext.toString());
-    }
-    for(var i in subdataSource)
-    {
-      print(i.btext.toString());
-    }
+  DateTime _stripTime(DateTime date) {
+    return DateTime(date.year, date.month, date.day);
   }
 
   // 오늘의 인덱스 가져오기
   int? _getTodayIndex(List<Plan> planList) {
-    today = Globals.todayString();
-    for (int i = 0; i < planList.length; i++) {
-      if (planList[i].day == today) {
-        return i;
-      }
-    }
-    return null;
+    final selectedOrToday = selectedDate != null
+        ? _stripTime(selectedDate!)
+        : _stripTime(DateTime.now());
+    return planList.indexWhere(
+        (plan) => _stripTime(DateTime.parse(plan.day!)) == selectedOrToday);
   }
 }
