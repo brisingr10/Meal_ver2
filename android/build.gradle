@@ -16,3 +16,16 @@ subprojects {
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
+buildscript {
+    repositories {
+        google()        // Google 리포지토리 추가
+        mavenCentral()  // Maven Central 리포지토리 추가
+    }
+    ext {
+        // 아래 라인을 추가해 최신 버전의 Gradle 플러그인 사용
+        kotlin_version = '1.7.10'
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.2.2'  // 최신 버전의 Gradle 플러그인 사용
+    }
+}

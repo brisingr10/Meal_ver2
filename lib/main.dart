@@ -1,12 +1,16 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:meal_ver2/viewmodel/MainViewModel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'view/MainView.dart'; // MainView import
 import 'view/SelectBibleView.dart';
+import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Flutter 엔진 초기화
+  await Firebase.initializeApp(); // Firebase 초기화
   print('Initializing SharedPreferences...');
 
   try {

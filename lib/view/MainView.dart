@@ -12,7 +12,6 @@ class Meal2View extends StatefulWidget {
 class _Meal2ViewState extends State<Meal2View> {
   bool isLoading = true;
   String errorMessage = '';
-  ScrollController _scrollController = ScrollController();
   DateTime? selectedDate;
   late MainViewModel viewModel;
 
@@ -22,13 +21,6 @@ class _Meal2ViewState extends State<Meal2View> {
     viewModel =
         Provider.of<MainViewModel>(context, listen: false); // viewModel 가져오기
     _loadData();
-
-    _scrollController.addListener(() {
-      if (_scrollController.position.atEdge &&
-          _scrollController.position.pixels != 0) {
-        _refreshData();
-      }
-    });
   }
 
   Future<void> _loadData() async {
@@ -61,7 +53,6 @@ class _Meal2ViewState extends State<Meal2View> {
 
   @override
   void dispose() {
-    _scrollController.dispose();
     super.dispose();
   }
 
@@ -110,14 +101,14 @@ class _Meal2ViewState extends State<Meal2View> {
                     },
                   ),
                   Expanded(
+                    child: RefreshIndicator(
+                      onRefresh: _refreshData, // 새로고침 호출
                     child: ListView.builder(
-                      controller: _scrollController,
+                      controller: ScrollController(),
                       itemCount: viewModel.dataSource.length,
                       itemBuilder: (context, index) {
                       final verse = viewModel.dataSource[index];
                       final subverse = viewModel.subdataSource[index];
-                      
-
                         return ListTile(
                           title: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -164,6 +155,7 @@ class _Meal2ViewState extends State<Meal2View> {
                         );
                       },
                     ),
+                  ),
                   ),
                 ],
               ),
