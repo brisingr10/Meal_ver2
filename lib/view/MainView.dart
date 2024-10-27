@@ -40,7 +40,7 @@ class _Meal2ViewState extends State<Meal2View> {
 
   Future<void> _refreshData() async {
     try {
-      await viewModel.loadPreferences(); // 데이터를 다시 로드
+      await viewModel.refreshVersesForDate(selectedDate); // 날짜에 맞게 데이터 새로고침
       setState(() {
         isLoading = false;
       });
@@ -106,46 +106,73 @@ class _Meal2ViewState extends State<Meal2View> {
                       onRefresh: _refreshData, // 새로고침 호출
                       child: ListView.builder(
                         controller: ScrollController(),
-                        itemCount: viewModel.dataSource[0].length, // 각 성경의 구절 수로 설정 (동일한 절 수라고 가정)
+                        itemCount: viewModel.dataSource[0].length,
+                        // 각 성경의 구절 수로 설정 (동일한 절 수라고 가정)
                         itemBuilder: (context, index) {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: viewModel.dataSource.asMap().entries.map((entry) {
-                              int bibleIndex = entry.key;
-                              List<Verse> bibleVerses = entry.value;
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: viewModel.dataSource
+                                    .asMap()
+                                    .entries
+                                    .map((entry) {
+                                  int bibleIndex = entry.key;
+                                  List<Verse> bibleVerses = entry.value;
 
-                              if (index < bibleVerses.length) {
-                                Verse verse = bibleVerses[index];
-                                bool isFirstBible = bibleIndex == 0; // 첫 번째 성경인지 확인
+                                  if (index < bibleVerses.length) {
+                                    Verse verse = bibleVerses[index];
+                                    bool isFirstBible =
+                                        bibleIndex == 0; // 첫 번째 성경인지 확인
 
-                                return Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '${verse.verse}. ',
-                                      style: TextStyle(
-                                        color: Colors.black54,
-                                        fontFamily: 'Biblefont',
-                                        fontSize: MediaQuery.of(context).size.width * 0.025,
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Text(
-                                        verse.btext,
-                                        style: TextStyle(
-                                          color: isFirstBible ? Colors.black : Colors.black54, // 첫 번째 성경은 파란색
-                                          fontWeight: isFirstBible ? FontWeight.bold : FontWeight.normal, // 첫 번째 성경은 굵게
-                                          fontFamily: 'Biblefont',
-                                          fontSize: MediaQuery.of(context).size.width * 0.03,
+                                    return Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '${verse.verse}. ',
+                                          style: TextStyle(
+                                            color: Colors.black54,
+                                            fontFamily: 'Biblefont',
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.025,
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              } else {
-                                return SizedBox.shrink();
-                              }
-                            }).toList(),
+                                        Expanded(
+                                          child: Text(
+                                            verse.btext,
+                                            style: TextStyle(
+                                              color: isFirstBible
+                                                  ? Colors.black
+                                                  : Colors.black54,
+                                              fontWeight: isFirstBible
+                                                  ? FontWeight.bold
+                                                  : FontWeight.normal,
+                                              fontFamily: 'Biblefont',
+                                              fontSize: isFirstBible
+                                                  ? MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.03
+                                                  : MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.025,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  } else {
+                                    return SizedBox.shrink();
+                                  }
+                                }).toList(),
+                              ),
+                              SizedBox(height: 16.0), // 항목 사이 간격
+                            ],
                           );
                         },
                       ),
@@ -177,6 +204,11 @@ class Header extends StatelessWidget {
     final displayDate = selectedDate != null
         ? DateFormat('yyyy-MM-dd').format(selectedDate!)
         : todayString;
+
+    // 오늘의 계획 정보를 가져오기
+    final todayPlanDescription = viewModel.todayPlan != null
+        ? '${viewModel.todayPlan.fullName} ${viewModel.todayPlan.fChap}:${viewModel.todayPlan.fVer} - ${viewModel.todayPlan.lVer} 절'
+        : '오늘의 계획이 없습니다';
 
     return Column(
       children: [
@@ -211,7 +243,7 @@ class Header extends StatelessWidget {
                 '오늘 날짜: ${viewModel.selectedDate != null ? DateFormat('yyyy-MM-dd').format(viewModel.selectedDate!) : todayString}',
                 style: TextStyle(
                     fontFamily: 'Biblefont',
-                    fontSize: MediaQuery.of(context).size.width * 0.035,
+                    fontSize: MediaQuery.of(context).size.width * 0.030,
                     color: Theme.of(context).textTheme.bodyLarge?.color)),
             IconButton(
               icon: Icon(Icons.calendar_today),
@@ -219,10 +251,11 @@ class Header extends StatelessWidget {
             ),
           ],
         ),
-        Divider(color: Colors.grey),
-        Text('',
+
+        SizedBox(height: 8), // 공간을 추가
+        Text(todayPlanDescription, // 오늘의 계획 정보 추가
             style: TextStyle(
-                fontSize: 18,
+                fontSize: MediaQuery.of(context).size.width * 0.035,
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).textTheme.bodyLarge?.color)),
       ],

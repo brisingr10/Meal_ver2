@@ -33,6 +33,9 @@ class Book {
   @JsonKey(name: 'btext')
   final String btext;
 
+  @JsonKey(name: 'fullName')
+  final String fullName;
+
   @JsonKey(name: 'chapter')
   final int chapter;
 
@@ -45,6 +48,7 @@ class Book {
   Book({
     required this.book,
     required this.btext,
+    required this.fullName,
     required this.chapter,
     required this.verse,
     required this.id,
@@ -60,6 +64,7 @@ class Book {
     return Book(
       book: json['book'] ?? '', // null 처리: 빈 문자열로 기본값 설정
       btext: json['btext'] ??'',
+      fullName: json['fullName'] ?? '',
       chapter: json['chapter'] ?? 0, // 장 번호
       verse: json['verse'] ?? 0, // 구절 번호
       id: json['id'] ?? 0, // 구절 고유 ID

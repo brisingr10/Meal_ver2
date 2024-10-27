@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
       builder: (context, viewModel, child) {
         return MaterialApp(
           // 여기에서 getThemeMode()를 호출하여 themeMode 설정
-          themeMode: viewModel.getThemeMode(),
+          themeMode: viewModel.getThemeMode(ThemeMode.system),
           home: Meal2View(),
         );
       },

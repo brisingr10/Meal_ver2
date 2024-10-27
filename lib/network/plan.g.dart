@@ -9,6 +9,7 @@ part of 'plan.dart';
 Plan _$PlanFromJson(Map<String, dynamic> json) => Plan(
       day: json['day'] as String?,
       book: json['book'] as String?,
+      fullName: json['fullName'] as String?,
       fChap: (json['fChap'] as num?)?.toInt(),
       fVer: (json['fVer'] as num?)?.toInt(),
       lChap: (json['lChap'] as num?)?.toInt(),
@@ -18,6 +19,7 @@ Plan _$PlanFromJson(Map<String, dynamic> json) => Plan(
 Map<String, dynamic> _$PlanToJson(Plan instance) => <String, dynamic>{
       'day': instance.day,
       'book': instance.book,
+      'fullName' : instance.fullName,
       'fChap': instance.fChap,
       'fVer': instance.fVer,
       'lChap': instance.lChap,

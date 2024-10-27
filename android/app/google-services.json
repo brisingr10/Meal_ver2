@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "380708037345",
+    "project_id": "meal-ver2",
+    "storage_bucket": "meal-ver2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:380708037345:android:3bcddeeb23b9364b5e4da0",
+        "android_client_info": {
+          "package_name": "com.example.meal_ver2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCundSBn3Wnx2zvXOfF-Wg0hOOlifrXSPY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

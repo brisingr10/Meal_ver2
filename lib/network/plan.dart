@@ -7,6 +7,7 @@ part 'plan.g.dart';
 class Plan {
   String? day;
   String? book;
+  String? fullName;
   int? fChap;
   int? fVer;
   int? lChap;
@@ -15,6 +16,7 @@ class Plan {
   Plan({
     this.day,
     this.book,
+    this.fullName,
     this.fChap,
     this.fVer,
     this.lChap,
@@ -23,7 +25,7 @@ class Plan {
 
   @override
   String toString() {
-    return 'Plan(day: $day, book: $book, fChap: $fChap, fVer: $fVer, lChap: $lChap, lVer: $lVer)';
+    return 'Plan(day: $day, book: $book, fullName: $fullName, fChap: $fChap, fVer: $fVer, lChap: $lChap, lVer: $lVer)';
   }
   // JSON 직렬화/역직렬화 함수
   factory Plan.fromJson(Map<String, dynamic> json) => _$PlanFromJson(json);
