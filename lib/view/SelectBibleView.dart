@@ -10,8 +10,12 @@ class SelectBibleView extends StatefulWidget {
 class _SelectBibleViewState extends State<SelectBibleView> {
   // 선택 상태를 저장하는 변수
   Map<String, bool> selectedBibles = {
-    '개역개정.json': false,
-    '개역한글.json': false,
+    '개역개정': true,
+    '개역한글': false,
+    '쉬운성경': false,
+    '새번역': false,
+    'ESV': false,
+    'NIV': false,
   };
 
   @override
@@ -50,7 +54,7 @@ class _SelectBibleViewState extends State<SelectBibleView> {
                     .toList();
 
                 // 선택한 성경 파일들을 MainViewModel로 넘기고 처리
-                //viewModel.loadMultipleBibles(selectedFiles);
+                viewModel.loadMultipleBibles(selectedFiles);
 
                 // 창 종료
                 Navigator.pop(context);

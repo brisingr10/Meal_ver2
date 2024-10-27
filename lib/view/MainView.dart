@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:meal_ver2/model/Verse.dart';
 import 'package:meal_ver2/viewmodel/MainViewModel.dart';
 import 'package:provider/provider.dart';
 import 'package:meal_ver2/view/SelectBibleView.dart'; // 성경 선택 화면을 import
@@ -103,59 +104,52 @@ class _Meal2ViewState extends State<Meal2View> {
                   Expanded(
                     child: RefreshIndicator(
                       onRefresh: _refreshData, // 새로고침 호출
-                    child: ListView.builder(
-                      controller: ScrollController(),
-                      itemCount: viewModel.dataSource.length,
-                      itemBuilder: (context, index) {
-                      final verse = viewModel.dataSource[index];
-                      final subverse = viewModel.subdataSource[index];
-                        return ListTile(
-                          title: Row(
+                      child: ListView.builder(
+                        controller: ScrollController(),
+                        itemCount: viewModel.dataSource[0].length, // 각 성경의 구절 수로 설정 (동일한 절 수라고 가정)
+                        itemBuilder: (context, index) {
+                          return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('${verse.verse}. ',
-                                  style: TextStyle(
-                                      color: Colors.black54,
-                                      fontFamily: 'Biblefont',
-                                      fontSize:
-                                      MediaQuery.of(context).size.width *
-                                          0.03)),
-                              Expanded(
-                                  child: Text(verse.btext,
+                            children: viewModel.dataSource.asMap().entries.map((entry) {
+                              int bibleIndex = entry.key;
+                              List<Verse> bibleVerses = entry.value;
+
+                              if (index < bibleVerses.length) {
+                                Verse verse = bibleVerses[index];
+                                bool isFirstBible = bibleIndex == 0; // 첫 번째 성경인지 확인
+
+                                return Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '${verse.verse}. ',
                                       style: TextStyle(
-                                          color: Colors.black,
-                                          fontFamily: 'Biblefont',
-                                          fontSize: MediaQuery.of(context)
-                                              .size
-                                              .width *
-                                              0.03))),
-                            ],
-                          ),
-                          subtitle: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('${subverse.verse}. ',
-                                  style: TextStyle(
-                                      color: Colors.black54,
-                                      fontFamily: 'Biblefont',
-                                      fontSize:
-                                      MediaQuery.of(context).size.width *
-                                          0.025)),
-                              Expanded(
-                                child: Text(subverse.btext,
-                                    style: TextStyle(
-                                        color: Colors.black,
+                                        color: Colors.black54,
                                         fontFamily: 'Biblefont',
-                                        fontSize:
-                                        MediaQuery.of(context).size.width *
-                                            0.025)),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+                                        fontSize: MediaQuery.of(context).size.width * 0.03,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        verse.btext,
+                                        style: TextStyle(
+                                          color: isFirstBible ? Colors.black : Colors.black54, // 첫 번째 성경은 파란색
+                                          fontWeight: isFirstBible ? FontWeight.bold : FontWeight.normal, // 첫 번째 성경은 굵게
+                                          fontFamily: 'Biblefont',
+                                          fontSize: MediaQuery.of(context).size.width * 0.03,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              } else {
+                                return SizedBox.shrink();
+                              }
+                            }).toList(),
+                          );
+                        },
+                      ),
                     ),
-                  ),
                   ),
                 ],
               ),

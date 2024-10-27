@@ -41,46 +41,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBF0K6qn0gsWZ2FmA377Ryl_PwiRTUCY5E',
-    appId: '1:839505388310:web:30a81860f92a6bf348e637',
-    messagingSenderId: '839505388310',
-    projectId: 'meal-v2',
-    authDomain: 'meal-v2.firebaseapp.com',
-    storageBucket: 'meal-v2.appspot.com',
+    apiKey: 'AIzaSyAW3XRbW9o177bMDcuprQ-a5DV8pwJw1tM',
+    appId: '1:380708037345:web:1f296c04574466df5e4da0',
+    messagingSenderId: '380708037345',
+    projectId: 'meal-ver2',
+    authDomain: 'meal-ver2.firebaseapp.com',
+    storageBucket: 'meal-ver2.appspot.com',
+    measurementId: 'G-Y1H3L33J92',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCeBPj_7Ojth3aJSl0mZyVaUxjs_WnZf6Y',
-    appId: '1:839505388310:android:782773d5ee464c2448e637',
-    messagingSenderId: '839505388310',
-    projectId: 'meal-v2',
-    storageBucket: 'meal-v2.appspot.com',
+    apiKey: 'AIzaSyCundSBn3Wnx2zvXOfF-Wg0hOOlifrXSPY',
+    appId: '1:380708037345:android:3bcddeeb23b9364b5e4da0',
+    messagingSenderId: '380708037345',
+    projectId: 'meal-ver2',
+    storageBucket: 'meal-ver2.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBxmQWHFYiD8XW32Jc5VYmYwrIIaDA6LDI',
-    appId: '1:839505388310:ios:6008985155f36c8448e637',
-    messagingSenderId: '839505388310',
-    projectId: 'meal-v2',
-    storageBucket: 'meal-v2.appspot.com',
+    apiKey: 'AIzaSyBhbWmBsNkcq0jOov8no3C4BP2R3NCx1Y8',
+    appId: '1:380708037345:ios:43b3a8d5525df2355e4da0',
+    messagingSenderId: '380708037345',
+    projectId: 'meal-ver2',
+    storageBucket: 'meal-ver2.appspot.com',
     iosBundleId: 'com.example.mealVer2',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBxmQWHFYiD8XW32Jc5VYmYwrIIaDA6LDI',
-    appId: '1:839505388310:ios:6008985155f36c8448e637',
-    messagingSenderId: '839505388310',
-    projectId: 'meal-v2',
-    storageBucket: 'meal-v2.appspot.com',
+    apiKey: 'AIzaSyBhbWmBsNkcq0jOov8no3C4BP2R3NCx1Y8',
+    appId: '1:380708037345:ios:43b3a8d5525df2355e4da0',
+    messagingSenderId: '380708037345',
+    projectId: 'meal-ver2',
+    storageBucket: 'meal-ver2.appspot.com',
     iosBundleId: 'com.example.mealVer2',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyBF0K6qn0gsWZ2FmA377Ryl_PwiRTUCY5E',
-    appId: '1:839505388310:web:c0a820489d4b929348e637',
-    messagingSenderId: '839505388310',
-    projectId: 'meal-v2',
-    authDomain: 'meal-v2.firebaseapp.com',
-    storageBucket: 'meal-v2.appspot.com',
+    apiKey: 'AIzaSyAW3XRbW9o177bMDcuprQ-a5DV8pwJw1tM',
+    appId: '1:380708037345:web:6aa8b58a0f667e255e4da0',
+    messagingSenderId: '380708037345',
+    projectId: 'meal-ver2',
+    authDomain: 'meal-ver2.firebaseapp.com',
+    storageBucket: 'meal-ver2.appspot.com',
+    measurementId: 'G-17E7BQTSB4',
   );
+
 }
