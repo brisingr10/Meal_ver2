@@ -126,7 +126,7 @@ class _Meal2ViewState extends State<Meal2View> {
                                       style: TextStyle(
                                         color: Colors.black54,
                                         fontFamily: 'Biblefont',
-                                        fontSize: MediaQuery.of(context).size.width * 0.03,
+                                        fontSize: MediaQuery.of(context).size.width * 0.025,
                                       ),
                                     ),
                                     Expanded(

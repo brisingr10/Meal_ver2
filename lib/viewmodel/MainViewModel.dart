@@ -50,18 +50,18 @@ class MainViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      //_sharedPreferences = await SharedPreferences.getInstance();
+      _sharedPreferences = await SharedPreferences.getInstance();
       print("SharedPreferences loaded.");
       themeIndex = _sharedPreferences.getInt('themeIndex') ?? 0;
 
       if (!_isBibleLoaded) {
-        // 성경이 이미 로드되었는지 확인
         await _configBible();
       }
 
       // 성경이 제대로 로드되었다면 getTodayPlan을 호출
       if (bible != null && bible!.books.isNotEmpty) {
         getTodayPlan();
+        _updateTodayPlan();
       }
     } catch (e) {
       print('Error loading preferences: $e');
@@ -107,11 +107,6 @@ class MainViewModel extends ChangeNotifier {
       } else {
         print('Error: Bible data is empty');
       }
-
-      //planList.clear();
-      //todayPlan = Plan();
-      //planData = PlanData();
-      //dataSource.clear();
     } catch (e) {
       print('Error loading Bible data: $e');
     }
@@ -132,15 +127,22 @@ class MainViewModel extends ChangeNotifier {
   Future<void> loadMultipleBibles(List<String> bibleFiles) async {
     try {
       dataSource.clear();  // 새로 불러올 때만 초기화
+      if (bible == null || bible!.books.isEmpty) {
+        print('Error: Bible has not been loaded or is empty.');
+        return;
+      }
+      // 먼저 오늘의 계획을 확인하여 todayPlan 설정
+      getTodayPlan();
+
       for (String bibleFile in bibleFiles) {
         Bible? loadedBible = await _loadBibleFile('lib/repository/bib_json/$bibleFile.json');
         if (loadedBible != null) {
           List<Verse> versesInPlanRange = loadedBible.books.where((book) =>
           book.book == todayPlan.book &&
-              (book.chapter > todayPlan.fChap! ||
-                  book.chapter < todayPlan.lChap! ||
-                  (book.chapter == todayPlan.fChap! && book.verse >= todayPlan.fVer!) ||
-                  (book.chapter == todayPlan.lChap! && book.verse <= todayPlan.lVer!))
+              ((book.chapter > todayPlan.fChap! && book.chapter < todayPlan.lChap!) || // 범위 내 장
+                  (book.chapter == todayPlan.fChap! && book.verse >= todayPlan.fVer!) ||  // 시작 장, 절 이상
+                  (book.chapter == todayPlan.lChap! && book.verse <= todayPlan.lVer!)     // 끝 장, 절 이하
+              )
           ).map((book) => Verse(
               book: book.book,
               btext: book.btext,
@@ -148,12 +150,14 @@ class MainViewModel extends ChangeNotifier {
               id: book.id,
               verse: book.verse
           )).toList();
+
           dataSource.add(versesInPlanRange);
         } else {
           print('Error loading Bible file: $bibleFile');
         }
       }
-      print('DataSource loaded with ${dataSource.length} entries.');
+
+      print('DataSource loaded with ${dataSource.length} entries for today\'s plan.');
       notifyListeners();
     } catch (e) {
       print('Error loading Bible data: $e');
@@ -207,7 +211,7 @@ class MainViewModel extends ChangeNotifier {
       todayPlan = checkedPlan;
       print("exist todayPlan: ${todayPlan.toString()}");
       // 오늘의 계획을 설정한 후 dataSource를 업데이트
-      _updateTodayPlan();
+      //_updateTodayPlan();
     }
   }
 
