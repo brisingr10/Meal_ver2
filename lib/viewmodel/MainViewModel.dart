@@ -111,30 +111,37 @@ class MainViewModel extends ChangeNotifier {
   }
 
   Future<void> loadMultipleBibles(List<String> bibleFiles) async {
+    dataSource.clear();
     getTodayPlan();
     setSelectedBibles(bibleFiles);
-    dataSource.clear();
-
+    if(bibleFiles.length > 2 )
+    {dataSource.clear();
     for (String bibleFile in bibleFiles) {
-      Bible? loadedBible = await _loadBibleFile('lib/repository/bib_json/$bibleFile.json');
+      Bible? loadedBible = await _loadBibleFile(
+          'lib/repository/bib_json/$bibleFile.json');
       if (loadedBible != null) {
         List<Verse> versesInPlanRange = loadedBible.books.where((book) =>
         book.book == todayPlan.book &&
-            ((book.chapter > todayPlan.fChap! && book.chapter < todayPlan.lChap!) ||
-                (book.chapter == todayPlan.fChap! && book.verse >= todayPlan.fVer!) ||
-                (book.chapter == todayPlan.lChap! && book.verse <= todayPlan.lVer!)
+            ((book.chapter > todayPlan.fChap! &&
+                book.chapter < todayPlan.lChap!) ||
+                (book.chapter == todayPlan.fChap! &&
+                    book.verse >= todayPlan.fVer!) ||
+                (book.chapter == todayPlan.lChap! &&
+                    book.verse <= todayPlan.lVer!)
             )
-        ).map((book) => Verse(
-            book: book.book,
-            btext: book.btext,
-            fullName: book.fullName,
-            chapter: book.chapter,
-            id: book.id,
-            verse: book.verse)).toList();
+        ).map((book) =>
+            Verse(
+                book: book.book,
+                btext: book.btext,
+                fullName: book.fullName,
+                chapter: book.chapter,
+                id: book.id,
+                verse: book.verse)).toList();
         dataSource.add(versesInPlanRange);
       } else {
         print('Error loading Bible file: $bibleFile');
       }
+    }
     }
     notifyListeners();
   }

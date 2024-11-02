@@ -40,7 +40,7 @@ class _Meal2ViewState extends State<Meal2View> {
 
   Future<void> _refreshData() async {
     try {
-      await viewModel.refreshVersesForDate(selectedDate); // 날짜에 맞게 데이터 새로고침
+      await viewModel.refreshVersesForDate(DateTime.now()); // 날짜에 맞게 데이터 새로고침
       setState(() {
         isLoading = false;
       });
