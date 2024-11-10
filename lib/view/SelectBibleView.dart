@@ -22,92 +22,83 @@ class _SelectBibleViewState extends State<SelectBibleView> {
   @override
   void initState() {
     super.initState();
-    final viewModel = Provider.of<MainViewModel>(context, listen: false);
-    selectedTheme = ThemeMode.system; // 초기 테마 설정
   }
 
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<MainViewModel>(context, listen: false);
 
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: MainViewModel.themeMode,
+      builder: (context, themeMode, child) {
+        bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+        return MaterialApp(
+            themeMode: themeMode,
+            theme: ThemeData.light(),
+            darkTheme: ThemeData.dark(),
+            home: Scaffold(
+          appBar: AppBar(
+            title: Text(
+              "Select Bibles",
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+                  ),
+            ),
+          ),
+          body: Column(
+            children: [
+              Expanded(
+                child: ListView(
+                  children: selectedBibles.keys.map((String bible) {
+                    return CheckboxListTile(
+                      title: Text(
+                        bible,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+                            ),
+                      ),
+                      value: selectedBibles[bible],
+                      onChanged: (bool? value) {
+                        setState(() {
+                          selectedBibles[bible] =
+                              value ?? false; // 체크박스 상태 업데이트
+                        });
+                      },
+                      activeColor: Theme.of(context).colorScheme.primary,
+                      checkColor: Theme.of(context).colorScheme.onPrimary,
+                    );
+                  }).toList(),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    // 선택된 파일들만 리스트로 필터링
+                    List<String> selectedFiles = selectedBibles.entries
+                        .where((entry) => entry.value) // 선택된 파일들만 필터링
+                        .map((entry) => entry.key)
+                        .toList();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Select Bibles"),
-      ),
-      body: Column(
-        children: [
-          // // 테마 선택 드롭다운
-          // Padding(
-          //   padding: const EdgeInsets.all(16.0),
-          //   child: Row(
-          //     children: [
-          //       Text('Theme: '),
-          //       SizedBox(width: 16),
-          //       DropdownButton<ThemeMode>(
-          //         value: selectedTheme,
-          //         items: [
-          //           DropdownMenuItem(
-          //             child: Text('System Default'),
-          //             value: ThemeMode.system,
-          //           ),
-          //           DropdownMenuItem(
-          //             child: Text('Light'),
-          //             value: ThemeMode.light,
-          //           ),
-          //           DropdownMenuItem(
-          //             child: Text('Dark'),
-          //             value: ThemeMode.dark,
-          //           ),
-          //         ],
-          //         onChanged: (ThemeMode? value) {
-          //           setState(() {
-          //             selectedTheme = value;
-          //           });
-          //           if (value != null) {
-          //             viewModel.getThemeMode(value); // MainViewModel에 선택된 테마 전달
-          //           }
-          //         },
-          //       ),
-          //     ],
-          //   ),
-          // ),
-          Expanded(
-            child: ListView(
-              children: selectedBibles.keys.map((String bible) {
-                return CheckboxListTile(
-                  title: Text(bible),
-                  value: selectedBibles[bible],
-                  onChanged: (bool? value) {
-                    setState(() {
-                      selectedBibles[bible] = value ?? false;  // 체크박스 상태 업데이트
-                    });
+                    // 선택한 성경 파일들을 MainViewModel로 넘기고 처리
+                    viewModel.loadMultipleBibles(selectedFiles);
+
+                    // 창 종료
+                    Navigator.pop(context);
                   },
-                );
-              }).toList(),
-            ),
+                  child: Text(
+                    '완료',
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+                        ),
+                  ),
+                ),
+              ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: () {
-                // 선택된 파일들만 리스트로 필터링
-                List<String> selectedFiles = selectedBibles.entries
-                    .where((entry) => entry.value)  // 선택된 파일들만 필터링
-                    .map((entry) => entry.key)
-                    .toList();
-
-                // 선택한 성경 파일들을 MainViewModel로 넘기고 처리
-                viewModel.loadMultipleBibles(selectedFiles);
-
-                // 창 종료
-                Navigator.pop(context);
-              },
-              child: Text('완료'),
-            ),
-          ),
-        ],
-      ),
+                   ),
+        );
+      },
     );
   }
 }

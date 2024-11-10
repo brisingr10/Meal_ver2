@@ -231,45 +231,8 @@ class Header extends StatelessWidget {
 
           children: [
             SizedBox(height: 30),
-            // Center(
-            //   child: Text('끼니',
-            //       style: TextStyle(
-            //           fontFamily: 'Mealfont',
-            //           fontSize: MediaQuery.of(context).size.width * 0.10,
-            //           color: Theme.of(context).textTheme.bodyLarge?.color)),
-            // ),
-            // Positioned(
-            //   right: 0,
-            //   child: IconButton(
-            //     icon: Icon(Icons.settings),
-            //     onPressed: () {
-            //       // 성경 선택 화면으로 이동
-            //       Navigator.push(
-            //         context,
-            //         MaterialPageRoute(builder: (context) => SelectBibleView()),
-            //       );
-            //     },
-            //   ),
-            // ),
           ],
         ),
-        // Row(
-        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //   children: [
-        //     Text(
-        //         '오늘 날짜: ${viewModel.selectedDate != null ? DateFormat('yyyy-MM-dd').format(viewModel.selectedDate!) : todayString}',
-        //         style: TextStyle(
-        //             fontFamily: 'Biblefont',
-        //             fontSize: MediaQuery.of(context).size.width * 0.030,
-        //             color: Theme.of(context).textTheme.bodyLarge?.color)),
-        //     IconButton(
-        //       icon: Icon(Icons.calendar_today),
-        //       onPressed: onSelectDate,
-        //     ),
-        //   ],
-        // ),
-        //
-        // SizedBox(height: 8), // 공간을 추가
         Text(todayPlanDescription, // 오늘의 계획 정보 추가
             style: TextStyle(
                 fontSize: MediaQuery.of(context).size.width * 0.035,
