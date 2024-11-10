@@ -67,7 +67,14 @@ class _Meal2ViewState extends State<Meal2View> {
         // 화면을 터치할 때 OptionView 표시
         OptionView().showTransparentWindow(context);
       },
-      child: Scaffold(
+    child: ValueListenableBuilder<ThemeMode>(
+    valueListenable: MainViewModel.themeMode,
+    builder: (context, themeMode, child) {
+    return MaterialApp(
+    themeMode: themeMode,
+    theme: ThemeData.light(),
+    darkTheme: ThemeData.dark(),
+      home: Scaffold(
 
       body: Consumer<MainViewModel>(
         builder: (context, viewModel, child) {
@@ -141,7 +148,7 @@ class _Meal2ViewState extends State<Meal2View> {
                                         Text(
                                           '${verse.verse}. ',
                                           style: TextStyle(
-                                            color: Colors.black54,
+                                            color: Theme.of(context).textTheme.bodyLarge?.color,
                                             fontFamily: 'Biblefont',
                                             fontSize: MediaQuery.of(context)
                                                     .size
@@ -153,9 +160,7 @@ class _Meal2ViewState extends State<Meal2View> {
                                           child: Text(
                                             verse.btext,
                                             style: TextStyle(
-                                              color: isFirstBible
-                                                  ? Colors.black
-                                                  : Colors.black54,
+                                              color: Theme.of(context).textTheme.bodyLarge?.color,
                                               fontWeight: FontWeight.normal,
                                               fontFamily: 'Biblefont',
                                               fontSize: isFirstBible
@@ -190,7 +195,10 @@ class _Meal2ViewState extends State<Meal2View> {
           );
         },
       ),
-    )
+      ),
+    );
+    },
+    ),
     );
   }
 }

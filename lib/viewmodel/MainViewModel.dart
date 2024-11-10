@@ -140,9 +140,7 @@ class MainViewModel extends ChangeNotifier {
     notifyListeners();
   }
   void toggleTheme() {
-    _themeMode.value = _themeMode.value == ThemeMode.light
-        ? ThemeMode.dark
-        : ThemeMode.light;
+    _themeMode.value = _themeMode.value == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
     notifyListeners();
   }
 
