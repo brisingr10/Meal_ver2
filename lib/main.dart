@@ -1,5 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:meal_ver2/util/CustomTheme.dart';
+import 'package:meal_ver2/viewmodel/CustomThemeMode.dart';
 import 'package:provider/provider.dart';
 import 'package:meal_ver2/viewmodel/MainViewModel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,9 +9,11 @@ import 'view/MainView.dart'; // MainView import
 import 'view/SelectBibleView.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'view/OptionView.dart';
 import 'firebase_options.dart'; // Firebase 옵션 파일이 있어야 합니다.
 
 Future<void> main() async {
+  CustomThemeMode.instance;
   WidgetsFlutterBinding.ensureInitialized(); // Flutter 엔진 초기화
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -37,14 +41,21 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Consumer<MainViewModel>(
-      builder: (context, viewModel, child) {
-        return MaterialApp(
-          // 여기에서 getThemeMode()를 호출하여 themeMode 설정
-          themeMode: viewModel.getThemeMode(ThemeMode.system),
-          home: Meal2View(),
-        );
-      },
-    );
+    return
+      //Consumer<MainViewModel>(
+      //builder: (context, mode, child) {
+    ValueListenableBuilder<ThemeMode>(
+        valueListenable: MainViewModel.themeMode,
+          builder: (context, themeMode, child) {
+            return MaterialApp(
+              darkTheme: CustomThemeData.dark,
+              theme: CustomThemeData.light,
+              themeMode: themeMode,
+              home: Meal2View(),
+              //home: OptionView(),
+            );
+          });
+    //);
+    //}
   }
 }

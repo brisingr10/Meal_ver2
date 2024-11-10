@@ -37,41 +37,41 @@ class _SelectBibleViewState extends State<SelectBibleView> {
       ),
       body: Column(
         children: [
-          // 테마 선택 드롭다운
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Text('Theme: '),
-                SizedBox(width: 16),
-                DropdownButton<ThemeMode>(
-                  value: selectedTheme,
-                  items: [
-                    DropdownMenuItem(
-                      child: Text('System Default'),
-                      value: ThemeMode.system,
-                    ),
-                    DropdownMenuItem(
-                      child: Text('Light'),
-                      value: ThemeMode.light,
-                    ),
-                    DropdownMenuItem(
-                      child: Text('Dark'),
-                      value: ThemeMode.dark,
-                    ),
-                  ],
-                  onChanged: (ThemeMode? value) {
-                    setState(() {
-                      selectedTheme = value;
-                    });
-                    if (value != null) {
-                      viewModel.getThemeMode(value); // MainViewModel에 선택된 테마 전달
-                    }
-                  },
-                ),
-              ],
-            ),
-          ),
+          // // 테마 선택 드롭다운
+          // Padding(
+          //   padding: const EdgeInsets.all(16.0),
+          //   child: Row(
+          //     children: [
+          //       Text('Theme: '),
+          //       SizedBox(width: 16),
+          //       DropdownButton<ThemeMode>(
+          //         value: selectedTheme,
+          //         items: [
+          //           DropdownMenuItem(
+          //             child: Text('System Default'),
+          //             value: ThemeMode.system,
+          //           ),
+          //           DropdownMenuItem(
+          //             child: Text('Light'),
+          //             value: ThemeMode.light,
+          //           ),
+          //           DropdownMenuItem(
+          //             child: Text('Dark'),
+          //             value: ThemeMode.dark,
+          //           ),
+          //         ],
+          //         onChanged: (ThemeMode? value) {
+          //           setState(() {
+          //             selectedTheme = value;
+          //           });
+          //           if (value != null) {
+          //             viewModel.getThemeMode(value); // MainViewModel에 선택된 테마 전달
+          //           }
+          //         },
+          //       ),
+          //     ],
+          //   ),
+          // ),
           Expanded(
             child: ListView(
               children: selectedBibles.keys.map((String bible) {

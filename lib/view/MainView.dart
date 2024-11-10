@@ -3,7 +3,9 @@ import 'package:intl/intl.dart';
 import 'package:meal_ver2/model/Verse.dart';
 import 'package:meal_ver2/viewmodel/MainViewModel.dart';
 import 'package:provider/provider.dart';
-import 'package:meal_ver2/view/SelectBibleView.dart'; // 성경 선택 화면을 import
+import 'package:meal_ver2/view/SelectBibleView.dart';
+
+import 'OptionView.dart'; // 성경 선택 화면을 import
 
 class Meal2View extends StatefulWidget {
   @override
@@ -56,11 +58,17 @@ class _Meal2ViewState extends State<Meal2View> {
   void dispose() {
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     print('Building Meal2View...');
-    return Scaffold(
+    return GestureDetector(
+
+      onTap: () {
+        // 화면을 터치할 때 OptionView 표시
+        OptionView().showTransparentWindow(context);
+      },
+      child: Scaffold(
+
       body: Consumer<MainViewModel>(
         builder: (context, viewModel, child) {
           // 로딩 중일 때
@@ -156,11 +164,11 @@ class _Meal2ViewState extends State<Meal2View> {
                                                   ? MediaQuery.of(context)
                                                           .size
                                                           .width *
-                                                      0.03
+                                                      0.04
                                                   : MediaQuery.of(context)
                                                           .size
                                                           .width *
-                                                      0.025,
+                                                      0.03,
                                             ),
                                           ),
                                         ),
@@ -184,6 +192,7 @@ class _Meal2ViewState extends State<Meal2View> {
           );
         },
       ),
+    )
     );
   }
 }
@@ -213,46 +222,48 @@ class Header extends StatelessWidget {
     return Column(
       children: [
         Stack(
-          children: [
-            Center(
-              child: Text('끼니',
-                  style: TextStyle(
-                      fontFamily: 'Mealfont',
-                      fontSize: MediaQuery.of(context).size.width * 0.10,
-                      color: Theme.of(context).textTheme.bodyLarge?.color)),
-            ),
-            Positioned(
-              right: 0,
-              child: IconButton(
-                icon: Icon(Icons.settings),
-                onPressed: () {
-                  // 성경 선택 화면으로 이동
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SelectBibleView()),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-                '오늘 날짜: ${viewModel.selectedDate != null ? DateFormat('yyyy-MM-dd').format(viewModel.selectedDate!) : todayString}',
-                style: TextStyle(
-                    fontFamily: 'Biblefont',
-                    fontSize: MediaQuery.of(context).size.width * 0.030,
-                    color: Theme.of(context).textTheme.bodyLarge?.color)),
-            IconButton(
-              icon: Icon(Icons.calendar_today),
-              onPressed: onSelectDate,
-            ),
-          ],
-        ),
 
-        SizedBox(height: 8), // 공간을 추가
+          children: [
+            SizedBox(height: 30),
+            // Center(
+            //   child: Text('끼니',
+            //       style: TextStyle(
+            //           fontFamily: 'Mealfont',
+            //           fontSize: MediaQuery.of(context).size.width * 0.10,
+            //           color: Theme.of(context).textTheme.bodyLarge?.color)),
+            // ),
+            // Positioned(
+            //   right: 0,
+            //   child: IconButton(
+            //     icon: Icon(Icons.settings),
+            //     onPressed: () {
+            //       // 성경 선택 화면으로 이동
+            //       Navigator.push(
+            //         context,
+            //         MaterialPageRoute(builder: (context) => SelectBibleView()),
+            //       );
+            //     },
+            //   ),
+            // ),
+          ],
+        ),
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //   children: [
+        //     Text(
+        //         '오늘 날짜: ${viewModel.selectedDate != null ? DateFormat('yyyy-MM-dd').format(viewModel.selectedDate!) : todayString}',
+        //         style: TextStyle(
+        //             fontFamily: 'Biblefont',
+        //             fontSize: MediaQuery.of(context).size.width * 0.030,
+        //             color: Theme.of(context).textTheme.bodyLarge?.color)),
+        //     IconButton(
+        //       icon: Icon(Icons.calendar_today),
+        //       onPressed: onSelectDate,
+        //     ),
+        //   ],
+        // ),
+        //
+        // SizedBox(height: 8), // 공간을 추가
         Text(todayPlanDescription, // 오늘의 계획 정보 추가
             style: TextStyle(
                 fontSize: MediaQuery.of(context).size.width * 0.035,

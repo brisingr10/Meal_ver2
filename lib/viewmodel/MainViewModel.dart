@@ -13,8 +13,12 @@ import '../network/plan.dart';
 import '../model/Verse.dart';
 
 class MainViewModel extends ChangeNotifier {
+  // ThemeMode _themeMode = ThemeMode.light; // 초기 테마 상태를 light로 설정
+  // ThemeMode get themeMode => _themeMode;
+  static ValueNotifier<ThemeMode> themeMode = ValueNotifier(ThemeMode.light);
+  static ValueNotifier<bool> current = ValueNotifier(true);
   late SharedPreferences _sharedPreferences;
-  int themeIndex = 0;
+  //int themeIndex = 0;
   List<Plan> planList = [];
   Bible? bible;
   late Plan todayPlan = Plan();
@@ -41,7 +45,7 @@ class MainViewModel extends ChangeNotifier {
       notifyListeners();
 
       _sharedPreferences = await SharedPreferences.getInstance();
-      themeIndex = _sharedPreferences.getInt('themeIndex') ?? 0;
+      //themeIndex = _sharedPreferences.getInt('themeIndex') ?? 0;
 
       if (!_isBibleLoaded) {
         await _configBible();
@@ -114,7 +118,7 @@ class MainViewModel extends ChangeNotifier {
     dataSource.clear();
     getTodayPlan();
     setSelectedBibles(bibleFiles);
-    if(bibleFiles.length > 2 )
+    if(bibleFiles.length > 1 )
     {dataSource.clear();
     for (String bibleFile in bibleFiles) {
       Bible? loadedBible = await _loadBibleFile(
@@ -145,23 +149,28 @@ class MainViewModel extends ChangeNotifier {
     }
     notifyListeners();
   }
-
-  void changeTheme(int index) {
-    themeIndex = index;
-    _sharedPreferences.setInt('themeIndex', themeIndex);
+  void toggleTheme() {
+    themeMode.value = themeMode.value == ThemeMode.light
+        ? ThemeMode.dark
+        : ThemeMode.light;
     notifyListeners();
   }
-
-  ThemeMode getThemeMode(themeIndex) {
-    switch (themeIndex) {
-      case ThemeMode.light:
-        return ThemeMode.light;
-      case ThemeMode.dark:
-        return ThemeMode.dark;
-      default:
-        return ThemeMode.system;
-    }
-  }
+  // void changeTheme(int index) {
+  //   themeIndex = index;
+  //   _sharedPreferences.setInt('themeIndex', themeIndex);
+  //   notifyListeners();
+  // }
+  //
+  // ThemeMode getThemeMode(themeIndex) {
+  //   switch (themeIndex) {
+  //     case ThemeMode.light:
+  //       return ThemeMode.light;
+  //     case ThemeMode.dark:
+  //       return ThemeMode.dark;
+  //     default:
+  //       return ThemeMode.system;
+  //   }
+  // }
 
   List<Plan>? _readSavedMealPlan() {
     String mealPlanStr = _sharedPreferences.getString("mealPlan") ?? "";
