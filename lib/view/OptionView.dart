@@ -37,7 +37,7 @@ class TransparentWindow extends StatelessWidget {
   Future<void> _selectDate(BuildContext context, MainViewModel viewModel) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: viewModel.selectedDate ?? DateTime.now(),
+      initialDate: viewModel.SelectedDate ?? DateTime.now(),
       firstDate: DateTime(2020),
       lastDate: DateTime(2024, 12, 31),
     );

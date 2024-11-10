@@ -13,27 +13,23 @@ import '../network/plan.dart';
 import '../model/Verse.dart';
 
 class MainViewModel extends ChangeNotifier {
-  // ThemeMode _themeMode = ThemeMode.light; // 초기 테마 상태를 light로 설정
-  // ThemeMode get themeMode => _themeMode;
-  static ValueNotifier<ThemeMode> themeMode = ValueNotifier(ThemeMode.light);
-  static ValueNotifier<bool> current = ValueNotifier(true);
-  late SharedPreferences _sharedPreferences;
-  //int themeIndex = 0;
-  List<Plan> planList = [];
-  Bible? bible;
-  late Plan todayPlan = Plan();
-  List<List<Verse>> dataSource = [];
-  String todayDescription = "";
-  DateTime? selectedDate;
-  bool _isBibleLoaded = false;
-  bool _isLoading = true;
-  List<String> selectedBibles = [];
+  static ValueNotifier<ThemeMode> _themeMode =  ValueNotifier(ThemeMode.light);
+  static ValueNotifier<ThemeMode> get themeMode => _themeMode;
+  late SharedPreferences _SharedPreferences;
+  List<Plan> PlanList = [];
+  Bible? _Bible;
+  late Plan? TodayPlan = Plan();
+  List<List<Verse>> DataSource = [];
+  DateTime? SelectedDate;
+  bool _IsBibleLoaded = false;
+  bool _IsLoading = true;
+  List<String> SelectedBibles = [];
 
 
-  bool get isLoading => _isLoading;
+  bool get IsLoading => this._IsLoading;
 
   MainViewModel(SharedPreferences sharedPreferences) {
-    _sharedPreferences = sharedPreferences;
+    _SharedPreferences = sharedPreferences;
     //deleteMealPlan();
     FireBaseFunction.signInAnonymously();
     loadPreferences();
@@ -41,44 +37,45 @@ class MainViewModel extends ChangeNotifier {
 
   Future<bool> loadPreferences() async {
     try {
-      _isLoading = true;
+      this._IsLoading = true;
       notifyListeners();
 
-      _sharedPreferences = await SharedPreferences.getInstance();
-      //themeIndex = _sharedPreferences.getInt('themeIndex') ?? 0;
+      _SharedPreferences = await SharedPreferences.getInstance();
 
-      if (!_isBibleLoaded) {
+      if (!this._IsBibleLoaded) {
         await _configBible();
       }
 
-      if (bible != null && bible!.books.isNotEmpty) {
-        getTodayPlan();
+      if (this._Bible != null && this._Bible!.books.isNotEmpty) {
+        this.TodayPlan = getTodayPlan();
+        _updateTodayPlan();
       }
       return true;
     } catch (e) {
       print('Error loading preferences: $e');
       return false;
     } finally {
-      _isLoading = false;
+      this._IsLoading = false;
       notifyListeners();
     }
   }
 
   void setSelectedBibles(List<String> bibles) {
-    selectedBibles = bibles;
+    this.SelectedBibles = bibles;
     notifyListeners();
   }
 
   Future<void> refreshVersesForDate(DateTime? date) async {
-    selectedDate = date;
-    getTodayPlan();
-    await loadMultipleBibles(selectedBibles); // 선택된 성경만 새로 로드
+    this.SelectedDate = date;
+    this.TodayPlan = getTodayPlan();
+    _updateTodayPlan();
+    await loadMultipleBibles(this.SelectedBibles); // 선택된 성경만 새로 로드
   }
 
   Future<bool> deleteMealPlan() async {
     try {
-      await _sharedPreferences.remove('mealPlan');
-      planList.clear();
+      await _SharedPreferences.remove('mealPlan');
+      this.PlanList.clear();
       notifyListeners();
       return true;
     } catch (e) {
@@ -89,9 +86,9 @@ class MainViewModel extends ChangeNotifier {
 
   Future<bool> _configBible() async {
     try {
-      bible = await _loadBibleFile('lib/repository/bib_json/개역개정.json');
-      if (bible != null) {
-        _isBibleLoaded = true;
+      this._Bible = await _loadBibleFile('lib/repository/bib_json/개역개정.json');
+      if (this._Bible != null) {
+        this._IsBibleLoaded = true;
         return true;
       } else {
         print('Error: Bible data is empty');
@@ -115,25 +112,18 @@ class MainViewModel extends ChangeNotifier {
   }
 
   Future<void> loadMultipleBibles(List<String> bibleFiles) async {
-    dataSource.clear();
-    getTodayPlan();
+    this.DataSource.clear();
+    this.TodayPlan = getTodayPlan();
+    _updateTodayPlan();
     setSelectedBibles(bibleFiles);
     if(bibleFiles.length > 1 )
-    {dataSource.clear();
+    {this.DataSource.clear();
     for (String bibleFile in bibleFiles) {
       Bible? loadedBible = await _loadBibleFile(
           'lib/repository/bib_json/$bibleFile.json');
       if (loadedBible != null) {
         List<Verse> versesInPlanRange = loadedBible.books.where((book) =>
-        book.book == todayPlan.book &&
-            ((book.chapter > todayPlan.fChap! &&
-                book.chapter < todayPlan.lChap!) ||
-                (book.chapter == todayPlan.fChap! &&
-                    book.verse >= todayPlan.fVer!) ||
-                (book.chapter == todayPlan.lChap! &&
-                    book.verse <= todayPlan.lVer!)
-            )
-        ).map((book) =>
+        book.book == this.TodayPlan?.book && ((book.chapter > this.TodayPlan!.fChap! && book.chapter < this.TodayPlan!.lChap!) || (book.chapter == this.TodayPlan!.fChap! && book.verse >= this.TodayPlan!.fVer!) || (book.chapter == this.TodayPlan!.lChap! && book.verse <= this.TodayPlan!.lVer!))).map((book) =>
             Verse(
                 book: book.book,
                 btext: book.btext,
@@ -141,7 +131,7 @@ class MainViewModel extends ChangeNotifier {
                 chapter: book.chapter,
                 id: book.id,
                 verse: book.verse)).toList();
-        dataSource.add(versesInPlanRange);
+        this.DataSource.add(versesInPlanRange);
       } else {
         print('Error loading Bible file: $bibleFile');
       }
@@ -150,30 +140,14 @@ class MainViewModel extends ChangeNotifier {
     notifyListeners();
   }
   void toggleTheme() {
-    themeMode.value = themeMode.value == ThemeMode.light
+    _themeMode.value = _themeMode.value == ThemeMode.light
         ? ThemeMode.dark
         : ThemeMode.light;
     notifyListeners();
   }
-  // void changeTheme(int index) {
-  //   themeIndex = index;
-  //   _sharedPreferences.setInt('themeIndex', themeIndex);
-  //   notifyListeners();
-  // }
-  //
-  // ThemeMode getThemeMode(themeIndex) {
-  //   switch (themeIndex) {
-  //     case ThemeMode.light:
-  //       return ThemeMode.light;
-  //     case ThemeMode.dark:
-  //       return ThemeMode.dark;
-  //     default:
-  //       return ThemeMode.system;
-  //   }
-  // }
 
   List<Plan>? _readSavedMealPlan() {
-    String mealPlanStr = _sharedPreferences.getString("mealPlan") ?? "";
+    String mealPlanStr = _SharedPreferences.getString("mealPlan") ?? "";
     if (mealPlanStr.isNotEmpty) {
       List<dynamic> decodedPlans = jsonDecode(mealPlanStr);
       return decodedPlans.map((plan) => Plan.fromJson(plan)).toList();
@@ -185,19 +159,22 @@ class MainViewModel extends ChangeNotifier {
   }
 
   void setSelectedDate(DateTime? date) {
-    selectedDate = date;
-    getTodayPlan();
-    loadMultipleBibles(selectedBibles); // 선택된 성경으로 데이터를 다시 로드
+    this.SelectedDate = date;
+    this.TodayPlan = getTodayPlan();
+    _updateTodayPlan();
+    loadMultipleBibles(this.SelectedBibles); // 선택된 성경으로 데이터를 다시 로드
     notifyListeners();
   }
 
-  void getTodayPlan() {
-    if (bible == null || bible!.books.isEmpty) return;
+  Plan? getTodayPlan() {
+    var plan = Plan();
+    if (this._Bible == null || this._Bible!.books.isEmpty) return null;
     Plan? checkedPlan = _existTodayPlan();
-    if (checkedPlan != null && todayPlan != checkedPlan) {
-      todayPlan = checkedPlan;
-      _updateTodayPlan();
+    if (checkedPlan != null && this.TodayPlan != checkedPlan) {
+      return plan = checkedPlan;
+      //_updateTodayPlan();
     }
+
   }
 
   Plan? _existTodayPlan() {
@@ -210,7 +187,7 @@ class MainViewModel extends ChangeNotifier {
   }
 
   Future<void> _getMealPlan() async {
-    _isLoading = true;
+    this._IsLoading = true;
     notifyListeners();
 
     try {
@@ -222,8 +199,8 @@ class MainViewModel extends ChangeNotifier {
         List<Plan> newPlanList =
         planListJson.map((plan) => Plan.fromJson(plan)).toList();
 
-        if (!listEquals(newPlanList, planList)) {
-          planList = newPlanList;
+        if (!listEquals(newPlanList, this.PlanList)) {
+          this.PlanList = newPlanList;
           _saveMealPlan();
           _getPlanData();
         }
@@ -231,21 +208,22 @@ class MainViewModel extends ChangeNotifier {
     } catch (e) {
       print("Error fetching meal plan: $e");
     } finally {
-      _isLoading = false;
+      this._IsLoading = false;
       notifyListeners();
     }
   }
 
   Future<void> selectLoad() async {
-    if (!_isBibleLoaded) {
+    if (!this._IsBibleLoaded) {
       await _configBible();
     }
-    List<String> savedBibles = _sharedPreferences.getStringList('selectedBibles') ?? [];
+    List<String> savedBibles = _SharedPreferences.getStringList('selectedBibles') ?? [];
     if (savedBibles.isNotEmpty) {
       await loadMultipleBibles(savedBibles);
     }
-    if (bible != null && bible!.books.isNotEmpty) {
-      getTodayPlan();
+    if (this._Bible != null && this._Bible!.books.isNotEmpty) {
+      this.TodayPlan = getTodayPlan();
+      _updateTodayPlan();
     }
   }
 
@@ -258,17 +236,17 @@ class MainViewModel extends ChangeNotifier {
   }
 
   void _saveMealPlan() {
-    String jsonString = jsonEncode(planList);
-    _sharedPreferences.setString("mealPlan", jsonString);
+    String jsonString = jsonEncode(this.PlanList);
+    _SharedPreferences.setString("mealPlan", jsonString);
   }
 
   void _getPlanData() {
-    String today = selectedDate != null
-        ? DateFormat('yyyy-MM-dd').format(selectedDate!)
+    String today = this.SelectedDate != null
+        ? DateFormat('yyyy-MM-dd').format(this.SelectedDate!)
         : Globals.todayString();
 
     try {
-      todayPlan = planList.firstWhere((plan) => plan.day == today);
+      TodayPlan = this.PlanList.firstWhere((plan) => plan.day == today);
       _updateTodayPlan();
     } catch (e) {
       print("Error: No plan found for the selected date.");
@@ -276,23 +254,23 @@ class MainViewModel extends ChangeNotifier {
   }
 
   void _updateTodayPlan() {
-    if (bible == null || bible!.books.isEmpty) return;
+    if (this._Bible == null || this._Bible!.books.isEmpty) return;
     // todayPlan의 fullName 설정
-    final matchingBook = bible!.books.firstWhere(
-          (book) => book.book == todayPlan.book,
+    final matchingBook = this._Bible!.books.firstWhere(
+          (book) => book.book == this.TodayPlan?.book,
       orElse: () => Book(book: '',btext: '', fullName: '',chapter: 0, id: 0, verse: 0),
     );
 
     if (matchingBook.fullName.isNotEmpty) {
-      todayPlan.fullName = matchingBook.fullName;
+      this.TodayPlan?.fullName = matchingBook.fullName;
     }
 
 
-    List<Verse> versesInRange = bible!.books.where((book) =>
-    book.book == todayPlan.book &&
-        ((book.chapter > todayPlan.fChap! && book.chapter < todayPlan.lChap!) ||
-            (book.chapter == todayPlan.fChap! && book.verse >= todayPlan.fVer!) ||
-            (book.chapter == todayPlan.lChap! && book.verse <= todayPlan.lVer!)
+    List<Verse> versesInRange = this._Bible!.books.where((book) =>
+    book.book == this.TodayPlan?.book &&
+        ((book.chapter > this.TodayPlan!.fChap! && book.chapter < this.TodayPlan!.lChap!) ||
+            ((book.chapter == this.TodayPlan!.fChap! && book.verse >= this.TodayPlan!.fVer!) &&
+            (book.chapter == this.TodayPlan!.lChap! && book.verse <= this.TodayPlan!.lVer!))
         )
     ).map((book) => Verse(
       id: book.id,
@@ -303,16 +281,16 @@ class MainViewModel extends ChangeNotifier {
       btext: book.btext,
     )).toList();
 
-    dataSource.clear();
-    dataSource.add(versesInRange);
+    this.DataSource.clear();
+    this.DataSource.add(versesInRange);
 
-    print("DataSource updated with verses for ${todayPlan.book} ${todayPlan.fullName} ${todayPlan.fChap}:${todayPlan.fVer} - ${todayPlan.lChap}:${todayPlan.lVer}");
+    print("DataSource updated with verses for ${this.TodayPlan!.book} ${this.TodayPlan!.fullName} ${this.TodayPlan!.fChap}:${this.TodayPlan!.fVer} - ${this.TodayPlan!.lChap}:${this.TodayPlan!.lVer}");
     notifyListeners();
   }
 
   int? _getTodayIndex(List<Plan> planList) {
-    final selectedOrToday = selectedDate != null
-        ? DateTime(selectedDate!.year, selectedDate!.month, selectedDate!.day)
+    final selectedOrToday = this.SelectedDate != null
+        ? DateTime(this.SelectedDate!.year, this.SelectedDate!.month, this.SelectedDate!.day)
         : DateTime.now();
     return planList.indexWhere(
             (plan) => DateTime.parse(plan.day!).difference(selectedOrToday).inDays == 0);

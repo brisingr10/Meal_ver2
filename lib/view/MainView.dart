@@ -72,13 +72,13 @@ class _Meal2ViewState extends State<Meal2View> {
       body: Consumer<MainViewModel>(
         builder: (context, viewModel, child) {
           // 로딩 중일 때
-          if (viewModel.isLoading) {
+          if (viewModel.IsLoading) {
             print('UI: Loading state...');
             return Center(child: CircularProgressIndicator());
           }
 
           // 로딩이 끝났지만 데이터가 없는 경우
-          if (viewModel.dataSource.isEmpty) {
+          if (viewModel.DataSource.isEmpty) {
             print('UI: No data available.');
             return Center(child: Text('No data available'));
           }
@@ -114,7 +114,7 @@ class _Meal2ViewState extends State<Meal2View> {
                       onRefresh: _refreshData, // 새로고침 호출
                       child: ListView.builder(
                         controller: ScrollController(),
-                        itemCount: viewModel.dataSource[0].length,
+                        itemCount: viewModel.DataSource[0].length,
                         // 각 성경의 구절 수로 설정 (동일한 절 수라고 가정)
                         itemBuilder: (context, index) {
                           return Column(
@@ -122,7 +122,7 @@ class _Meal2ViewState extends State<Meal2View> {
                             children: [
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: viewModel.dataSource
+                                children: viewModel.DataSource
                                     .asMap()
                                     .entries
                                     .map((entry) {
@@ -156,9 +156,7 @@ class _Meal2ViewState extends State<Meal2View> {
                                               color: isFirstBible
                                                   ? Colors.black
                                                   : Colors.black54,
-                                              fontWeight: isFirstBible
-                                                  ? FontWeight.bold
-                                                  : FontWeight.normal,
+                                              fontWeight: FontWeight.normal,
                                               fontFamily: 'Biblefont',
                                               fontSize: isFirstBible
                                                   ? MediaQuery.of(context)
@@ -215,8 +213,8 @@ class Header extends StatelessWidget {
         : todayString;
 
     // 오늘의 계획 정보를 가져오기
-    final todayPlanDescription = viewModel.todayPlan != null
-        ? '${viewModel.todayPlan.fullName} ${viewModel.todayPlan.fChap}:${viewModel.todayPlan.fVer} - ${viewModel.todayPlan.lVer} 절'
+    final todayPlanDescription = viewModel.TodayPlan != null
+        ? '${viewModel.TodayPlan!.fullName} ${viewModel.TodayPlan!.fChap}:${viewModel.TodayPlan!.fVer} - ${viewModel.TodayPlan!.lVer} 절'
         : '오늘의 계획이 없습니다';
 
     return Column(
