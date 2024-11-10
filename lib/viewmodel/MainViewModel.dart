@@ -123,7 +123,7 @@ class MainViewModel extends ChangeNotifier {
           'lib/repository/bib_json/$bibleFile.json');
       if (loadedBible != null) {
         List<Verse> versesInPlanRange = loadedBible.books.where((book) =>
-        book.book == this.TodayPlan?.book && ((book.chapter > this.TodayPlan!.fChap! && book.chapter < this.TodayPlan!.lChap!) || (book.chapter == this.TodayPlan!.fChap! && book.verse >= this.TodayPlan!.fVer!) || (book.chapter == this.TodayPlan!.lChap! && book.verse <= this.TodayPlan!.lVer!))).map((book) =>
+        book.book == this.TodayPlan?.book && ((book.chapter > this.TodayPlan!.fChap! && book.chapter < this.TodayPlan!.lChap!) || ((book.chapter == this.TodayPlan!.fChap! && book.verse >= this.TodayPlan!.fVer!) && (book.chapter == this.TodayPlan!.lChap! && book.verse <= this.TodayPlan!.lVer!)))).map((book) =>
             Verse(
                 book: book.book,
                 btext: book.btext,
