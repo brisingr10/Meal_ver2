@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:meal_ver2/model/Verse.dart';
 import 'package:meal_ver2/viewmodel/MainViewModel.dart';
@@ -54,151 +55,196 @@ class _Meal2ViewState extends State<Meal2View> {
     }
   }
 
+  void _changeDate(BuildContext context, bool isNextDay) {
+    final viewModel = Provider.of<MainViewModel>(context, listen: false);
+    final currentDate = viewModel.SelectedDate ?? DateTime.now();
+    final newDate = isNextDay
+        ? currentDate.add(Duration(days: 1))
+        : currentDate.subtract(Duration(days: 1));
+
+    viewModel.setSelectedDate(newDate);
+  }
+
   @override
   void dispose() {
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     print('Building Meal2View...');
     return GestureDetector(
-
-      onTap: () {
-        // 화면을 터치할 때 OptionView 표시
-        OptionView().showTransparentWindow(context);
+      onHorizontalDragEnd: (details) {
+        if (details.primaryVelocity! < 0) {
+          _changeDate(context, true);
+        } else if (details.primaryVelocity! > 0) {
+          _changeDate(context, false);
+        }
       },
-    child: ValueListenableBuilder<ThemeMode>(
-    valueListenable: MainViewModel.themeMode,
-    builder: (context, themeMode, child) {
-    return MaterialApp(
-    themeMode: themeMode,
-    theme: ThemeData.light(),
-    darkTheme: ThemeData.dark(),
-      home: Scaffold(
 
-      body: Consumer<MainViewModel>(
-        builder: (context, viewModel, child) {
-          // 로딩 중일 때
-          if (viewModel.IsLoading) {
-            print('UI: Loading state...');
-            return Center(child: CircularProgressIndicator());
-          }
+      child: ValueListenableBuilder<ThemeMode>(
+        valueListenable: MainViewModel.themeMode,
+        builder: (context, themeMode, child) {
+          return MaterialApp(
+            themeMode: themeMode,
+            theme: ThemeData.light(),
+            darkTheme: ThemeData.dark(),
+            home: Scaffold(
+              body: SafeArea(
+              child: Consumer<MainViewModel>(
+                builder: (context, viewModel, child) {
+                  // 로딩 중일 때
+                  if (viewModel.IsLoading) {
+                    print('UI: Loading state...');
+                    return Center(child: CircularProgressIndicator());
+                  }
 
-          // 로딩이 끝났지만 데이터가 없는 경우
-          if (viewModel.DataSource.isEmpty) {
-            print('UI: No data available.');
-            return Center(child: Text('No data available'));
-          }
+                  // 로딩이 끝났지만 데이터가 없는 경우
+                  if (viewModel.DataSource.isEmpty) {
+                    print('UI: No data available.');
+                    return Center(child: Text('No data available'));
+                  }
 
-          // 로딩이 끝나고 데이터가 있는 경우
-          print('UI: Displaying data.');
-          return Container(
-            color: Theme.of(context).colorScheme.background,
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Header(
-                    selectedDate: selectedDate,
-                    onSelectDate: () async {
-                      final DateTime? pickedDate = await showDatePicker(
-                        context: context,
-                        initialDate: selectedDate ?? DateTime.now(),
-                        firstDate: DateTime(2020),
-                        lastDate: DateTime(2024, 12, 31),
-                      );
-                      if (pickedDate != null && pickedDate != selectedDate) {
-                        setState(() {
-                          selectedDate = pickedDate;
-                        });
-                        viewModel.setSelectedDate(pickedDate);
-                      }
-                    },
-                  ),
-                  Expanded(
-                    child: RefreshIndicator(
-                      onRefresh: _refreshData, // 새로고침 호출
-                      child: ListView.builder(
-                        controller: ScrollController(),
-                        itemCount: viewModel.DataSource[0].length,
-                        // 각 성경의 구절 수로 설정 (동일한 절 수라고 가정)
-                        itemBuilder: (context, index) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: viewModel.DataSource
-                                    .asMap()
-                                    .entries
-                                    .map((entry) {
-                                  int bibleIndex = entry.key;
-                                  List<Verse> bibleVerses = entry.value;
+                  // 로딩이 끝나고 데이터가 있는 경우
+                  print('UI: Displaying data.');
+                  return Container(
+                    color: Theme.of(context).colorScheme.background,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Header(
+                            selectedDate: selectedDate,
+                            onSelectDate: () async {
+                              final DateTime? pickedDate = await showDatePicker(
+                                context: context,
+                                initialDate: selectedDate ?? DateTime.now(),
+                                firstDate: DateTime(2020),
+                                lastDate: DateTime(2024, 12, 31),
+                              );
+                              if (pickedDate != null &&
+                                  pickedDate != selectedDate) {
+                                setState(() {
+                                  selectedDate = pickedDate;
+                                });
+                                viewModel.setSelectedDate(pickedDate);
+                              }
+                            },
+                          ),
+                          Expanded(
+                            child: RefreshIndicator(
+                              onRefresh: _refreshData, // 새로고침 호출
+                              child: ListView.builder(
+                                controller: ScrollController(),
+                                itemCount: viewModel.DataSource[0].length,
+                                // 각 성경의 구절 수로 설정 (동일한 절 수라고 가정)
+                                itemBuilder: (context, index) {
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: viewModel.DataSource.asMap()
+                                            .entries
+                                            .map((entry) {
+                                          int bibleIndex = entry.key;
+                                          List<Verse> bibleVerses = entry.value;
 
-                                  if (index < bibleVerses.length) {
-                                    Verse verse = bibleVerses[index];
-                                    bool isFirstBible =
-                                        bibleIndex == 0; // 첫 번째 성경인지 확인
+                                          if (index < bibleVerses.length) {
+                                            Verse verse = bibleVerses[index];
+                                            bool isFirstBible =
+                                                bibleIndex == 0; // 첫 번째 성경인지 확인
 
-                                    return Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          '${verse.verse}. ',
-                                          style: TextStyle(
-                                            color: Theme.of(context).textTheme.bodyLarge?.color,
-                                            fontFamily: 'Biblefont',
-                                            fontSize: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.025,
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: Text(
-                                            verse.btext,
-                                            style: TextStyle(
-                                              color: Theme.of(context).textTheme.bodyLarge?.color,
-                                              fontWeight: FontWeight.normal,
-                                              fontFamily: 'Biblefont',
-                                              fontSize: isFirstBible
-                                                  ? MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.04
-                                                  : MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.03,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  } else {
-                                    return SizedBox.shrink();
-                                  }
-                                }).toList(),
+                                            return GestureDetector(
+                                              onLongPress: () {
+                                                // 구절 전체를 복사
+                                                final textToCopy =
+                                                    '${verse.verse}. ${verse.btext}';
+                                                Clipboard.setData(ClipboardData(
+                                                    text: textToCopy));
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                        '구절이 복사되었습니다: $textToCopy'),
+                                                  ),
+                                                );
+                                              },
+                                              child:Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  '${verse.verse}. ',
+                                                  style: TextStyle(
+                                                    color: Theme.of(context)
+                                                        .textTheme
+                                                        .bodyLarge
+                                                        ?.color,
+                                                    fontFamily: 'Biblefont',
+                                                    fontSize:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.025,
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  child: SelectableText(
+                                                    verse.btext,
+                                                    style: TextStyle(
+                                                      color: isFirstBible
+                                                          ? Theme.of(context)
+                                                              .textTheme
+                                                              .bodyLarge
+                                                              ?.color
+                                                          : Colors.grey,
+                                                      fontWeight:
+                                                          FontWeight.normal,
+                                                      fontFamily: 'Biblefont',
+                                                      fontSize: isFirstBible
+                                                          ? MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width *
+                                                              0.035
+                                                          : MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width *
+                                                              0.03,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                              ),
+                                            );
+                                          } else {
+                                            return SizedBox.shrink();
+                                          }
+                                        }).toList(),
+                                      ),
+                                      SizedBox(height: 16.0), // 항목 사이 간격
+                                    ],
+                                  );
+                                },
                               ),
-                              SizedBox(height: 16.0), // 항목 사이 간격
-                            ],
-                          );
-                        },
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ],
+                  );
+                },
+              ),
               ),
             ),
           );
         },
       ),
-      ),
-    );
-    },
-    ),
     );
   }
 }
@@ -222,23 +268,77 @@ class Header extends StatelessWidget {
 
     // 오늘의 계획 정보를 가져오기
     final todayPlanDescription = viewModel.TodayPlan != null
-        ? '${viewModel.TodayPlan!.fullName} ${viewModel.TodayPlan!.fChap}:${viewModel.TodayPlan!.fVer} - ${viewModel.TodayPlan!.lVer} 절'
+        ? '${viewModel.TodayPlan!.fullName} ${viewModel.TodayPlan!.fChap}:${viewModel.TodayPlan!.fVer} - ${viewModel.TodayPlan!.lChap}:${viewModel.TodayPlan!.lVer} 절'
         : '오늘의 계획이 없습니다';
 
-    return Column(
-      children: [
-        Stack(
-
-          children: [
-            SizedBox(height: 30),
-          ],
-        ),
-        Text(todayPlanDescription, // 오늘의 계획 정보 추가
+    return Container(
+      padding: EdgeInsets.fromLTRB(5,0,0,0),
+      color: Colors.transparent,
+      child: Row(
+        children: [
+          // "끼니" 왼쪽 정렬
+          Text(
+            '끼니',
             style: TextStyle(
-                fontSize: MediaQuery.of(context).size.width * 0.035,
+              fontFamily: 'Mealfont',
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
+            ),
+          ),
+          SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              todayPlanDescription,
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                fontFamily: 'Mealfont',
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).textTheme.bodyLarge?.color)),
-      ],
+                color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
+              ),
+            ),
+          ),
+          SizedBox(width: 10),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 테마 선택 버튼
+              ValueListenableBuilder<ThemeMode>(
+                valueListenable: MainViewModel.themeMode,
+                builder: (BuildContext context, ThemeMode value, Widget? child) {
+                  return IconButton(
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      viewModel.toggleTheme();
+                    },
+                    icon: Icon(
+                      value == ThemeMode.light ? Icons.light_mode : Icons.dark_mode,
+                    ),
+                  );
+                },
+              ),
+              // 날짜 선택 버튼
+              IconButton(
+                icon: Icon(Icons.calendar_today),
+                onPressed: () {
+                  onSelectDate();
+                },
+              ),
+              // 성경 선택 버튼
+              IconButton(
+                icon: Icon(Icons.menu_book),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SelectBibleView()),
+                  );
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

@@ -10,18 +10,30 @@ class SelectBibleView extends StatefulWidget {
 class _SelectBibleViewState extends State<SelectBibleView> {
   // 선택 상태를 저장하는 변수
   Map<String, bool> selectedBibles = {
-    '개역개정': true,
+    '개역개정': false,
     '개역한글': false,
     '새번역': false,
     'ESV': false,
     'NIV': false,
   };
-
+  int selectedCount = 0;
+  List<String> selectedOrder = [];
+  bool isLoading = false;
   ThemeMode? selectedTheme;
 
   @override
   void initState() {
     super.initState();
+    // ViewModel에서 저장된 선택 상태를 가져와 Map에 반영
+    final viewModel = Provider.of<MainViewModel>(context, listen: false);
+
+    for (String bible in viewModel.SelectedBibles) {
+      if (selectedBibles.containsKey(bible)) {
+        selectedBibles[bible] = true;
+        selectedCount++;
+        selectedOrder.add(bible);
+      }
+    }
   }
 
   @override
@@ -39,7 +51,7 @@ class _SelectBibleViewState extends State<SelectBibleView> {
             home: Scaffold(
           appBar: AppBar(
             title: Text(
-              "Select Bibles",
+              "성경 버전",
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 color: themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                   ),
@@ -62,6 +74,12 @@ class _SelectBibleViewState extends State<SelectBibleView> {
                         setState(() {
                           selectedBibles[bible] =
                               value ?? false; // 체크박스 상태 업데이트
+                          selectedCount += (value ?? false)?1:-1;
+                          if (value == true) {
+                            selectedOrder.add(bible); // 선택하면 순서에 추가
+                          } else {
+                            selectedOrder.remove(bible); // 선택 해제 시 순서에서 제거
+                          }
                         });
                       },
                       activeColor: Theme.of(context).colorScheme.primary,
@@ -73,19 +91,12 @@ class _SelectBibleViewState extends State<SelectBibleView> {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: selectedCount > 0 ? () {
                     // 선택된 파일들만 리스트로 필터링
-                    List<String> selectedFiles = selectedBibles.entries
-                        .where((entry) => entry.value) // 선택된 파일들만 필터링
-                        .map((entry) => entry.key)
-                        .toList();
-
-                    // 선택한 성경 파일들을 MainViewModel로 넘기고 처리
-                    viewModel.loadMultipleBibles(selectedFiles);
-
+                    viewModel.loadMultipleBibles(selectedOrder);
                     // 창 종료
                     Navigator.pop(context);
-                  },
+                  } : null,
                   child: Text(
                     '완료',
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(

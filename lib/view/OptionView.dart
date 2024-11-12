@@ -34,7 +34,8 @@ class OptionView extends StatelessWidget {
 }
 
 class TransparentWindow extends StatelessWidget {
-  Future<void> _selectDate(BuildContext context, MainViewModel viewModel) async {
+  Future<void> _selectDate(
+      BuildContext context, MainViewModel viewModel) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: viewModel.SelectedDate ?? DateTime.now(),
@@ -52,7 +53,6 @@ class TransparentWindow extends StatelessWidget {
 
     return Scaffold(
         backgroundColor: Colors.transparent,
-
         body: GestureDetector(
           onTap: () {
             Navigator.of(context).pop(); // OptionView 닫기
@@ -60,75 +60,80 @@ class TransparentWindow extends StatelessWidget {
           onPanUpdate: (_) {
             Navigator.of(context).pop(); // OptionView 스크롤 시 닫기
           },
-
-          child:Column(
-
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Header
-              Container(
-
-                padding: EdgeInsets.all(16.0),
-                color: Colors.blue.withOpacity(1),
-                child: Center(
-
-                  child: Text(
-                    '끼니',
-                    style: TextStyle(
-                      fontFamily: 'Mealfont',
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+          child: SafeArea(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Header
+                Container(
+                  padding: EdgeInsets.fromLTRB(20,0,0,0),
+                  color: Colors.blue.withOpacity(1),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      '끼니',
+                      style: TextStyle(
+                        fontFamily: 'Mealfont',
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              // 중간 영역은 비어 있도록 설정하여 MainView의 화면이 그대로 보이게 함
-              Expanded(child: Container(color: Colors.transparent)),
-              // Bottom
-              Container(
-
-                padding: EdgeInsets.all(16.0),
-                color: Colors.white.withOpacity(0.8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    // 테마 선택 버튼
-                    ValueListenableBuilder<ThemeMode>(
-                      valueListenable: MainViewModel.themeMode,
-                      builder: (BuildContext context, ThemeMode value, Widget? child) {
-                        return IconButton(
-                          onPressed: () {
-                            HapticFeedback.mediumImpact();
-                            viewModel.toggleTheme();
-                          },
-                          icon: Icon(
-                            value == ThemeMode.light ? Icons.light_mode : Icons.dark_mode,
-                          ),
-                        );
-                      },
-                    ),
-                    // 날짜 선택 버튼
-                    IconButton(
-                      icon: Icon(Icons.calendar_today),
-                        onPressed: () {_selectDate(context, viewModel);},
-                    ),
-                    // 성경 선택 버튼
-                    IconButton(
-                      icon: Icon(Icons.menu_book),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => SelectBibleView()),
-                        );
-                      },
-                    ),
-                  ],
+                // 중간 영역은 비어 있도록 설정하여 MainView의 화면이 그대로 보이게 함
+                Expanded(child: Container(color: Colors.transparent)),
+                // Bottom
+                Container(
+                  padding: EdgeInsets.all(16.0),
+                  color: Colors.white.withOpacity(0.8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      // 테마 선택 버튼
+                      ValueListenableBuilder<ThemeMode>(
+                        valueListenable: MainViewModel.themeMode,
+                        builder: (BuildContext context, ThemeMode value,
+                            Widget? child) {
+                          return IconButton(
+                            onPressed: () {
+                              HapticFeedback.mediumImpact();
+                              viewModel.toggleTheme();
+                            },
+                            icon: Icon(
+                              value == ThemeMode.light
+                                  ? Icons.light_mode
+                                  : Icons.dark_mode,
+                            ),
+                          );
+                        },
+                      ),
+                      // 날짜 선택 버튼
+                      IconButton(
+                        icon: Icon(Icons.calendar_today),
+                        onPressed: () {
+                          _selectDate(context, viewModel);
+                        },
+                      ),
+                      // 성경 선택 버튼
+                      IconButton(
+                        icon: Icon(Icons.menu_book),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SelectBibleView()),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ));
+        )
+    );
   }
 }
 

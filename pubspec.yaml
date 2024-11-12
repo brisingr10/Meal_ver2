@@ -65,14 +65,14 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter_native_splash:
   color: "#ffffff"
-  image: AppIcon.appiconset/48.png
+  image: lib/repository/AppIcon.appiconset/72.png
   android: true
   ios: true
 
 flutter_icons:
   android: true
   ios: true
-  image_path: AppIcon.appiconset/48.png
+  image_path: lib/repository/AppIcon.appiconset/72.png
 
 flutter:
   # The following line ensures that the Material Icons font is
@@ -88,14 +88,14 @@ flutter:
     - lib/repository/bib_json/ESV.json
     - lib/repository/bib_json/NIV.json
     - lib/repository/bib_json/우리말.json
-    - AppIcon.appiconset/48.png
+    - lib/repository/AppIcon.appiconset/72.png
   fonts:
     - family: Mealfont
       fonts:
         - asset: lib/repository/font/nanumbrush.ttf
     - family: Biblefont
       fonts:
-        - asset: lib/repository/font/NanumBarunGothic-YetHangul.ttf
+        - asset: lib/repository/font/KoPubDotumMedium.ttf
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
