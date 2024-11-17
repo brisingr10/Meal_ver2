@@ -25,13 +25,22 @@ class MainViewModel extends ChangeNotifier {
   bool _IsBibleLoaded = false;
   bool _IsLoading = true;
   List<String> SelectedBibles = [];
-
+  DateTime? lastViewedDate;
   bool get IsLoading => this._IsLoading;
+  double _fontSize = 16.0;
+  double _lineSpacing = 16.0;
+
+  double get fontSize => _fontSize;
+  double get lineSpacing => _lineSpacing;
+
+
+
 
   MainViewModel(SharedPreferences sharedPreferences) {
     _SharedPreferences = sharedPreferences;
     //deleteMealPlan();
     FireBaseFunction.signInAnonymously();
+    loadSliderSettings();
     loadPreferences();
     _loadSelectedBibles();
   }
@@ -39,7 +48,25 @@ class MainViewModel extends ChangeNotifier {
     _IsLoading = loading;
     notifyListeners();
   }
+  void updateFontSize(double size) async{
+    _fontSize = size;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('fontSize', _fontSize);
+    notifyListeners();
+  }
+  Future<void> loadSliderSettings() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _fontSize = prefs.getDouble('fontSize') ?? 16.0; // 기본값 16.0
+    _lineSpacing = prefs.getDouble('lineSpacing') ?? 16.0; // 기본값 16.0
+    notifyListeners();
+  }
 
+  void updateLineSpacing(double spacing) async{
+    _lineSpacing = spacing;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('lineSpacing', _lineSpacing); // setDouble 사용
+    notifyListeners();
+  }
   // 선택한 바이블을 SharedPreferences에 저장
   Future<void> saveSelectedBibles() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -49,9 +76,49 @@ class MainViewModel extends ChangeNotifier {
   // SharedPreferences에서 선택한 바이블 불러오기
   Future<void> _loadSelectedBibles() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isFirstRun = prefs.getBool('isFisrtRun') ?? true;
+    Prefinitial(isFirstRun, prefs);
+
+    // 테마 모드 불러오기
+    String? savedTheme = _SharedPreferences.getString('themeMode');
+    if (savedTheme != null) {
+      _themeMode.value = savedTheme == 'dark' ? ThemeMode.dark : ThemeMode.light;
+    }
+
+    // 마지막 본 날짜 불러오기
+    String? savedDate = _SharedPreferences.getString('lastViewedDate');
+    if (savedDate != null) {
+      lastViewedDate = DateTime.tryParse(savedDate);
+    }
+
+    // 마지막 선택한 성경 불러오기
     SelectedBibles = prefs.getStringList('selectedBibles') ?? [];
+
     notifyListeners(); // 불러온 데이터를 반영
   }
+
+  Future<void> Prefinitial(bool isfirstrun, SharedPreferences prefs) async
+  {
+    if (isfirstrun) {
+      // 앱 설치 후 첫 실행 시 수행할 작업
+      print('앱 최초 실행: 초기화 진행 중...');
+      await performInitialSetup();
+
+      // 'isFirstRun'을 false로 설정
+      await prefs.setBool('isFirstRun', false);
+    } else {
+      print('앱 재실행: 초기화 필요 없음');
+    }
+  }
+
+Future<void> performInitialSetup() async {
+  // 초기화 작업 수행
+  // 예: 기본값 저장, 설정 초기화
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('defaultSetting', 'value');
+  print('초기 설정 완료');
+}
+
 
   Future<bool> loadPreferences() async {
     try {
@@ -106,9 +173,15 @@ class MainViewModel extends ChangeNotifier {
   Future<bool> _configBible() async {
     try {
       this._Bible = await _loadBibleFile('lib/repository/bib_json/개역개정.json');
-      this.SelectedBibles.add("개역개정");
+
       if (this._Bible != null) {
         this._IsBibleLoaded = true;
+
+        // 중복 방지 로직 추가
+        if (!this.SelectedBibles.contains("개역개정")) {
+          this.SelectedBibles.add("개역개정");
+        }
+
         return true;
       } else {
         print('Error: Bible data is empty');
@@ -138,6 +211,13 @@ class MainViewModel extends ChangeNotifier {
       this.TodayPlan = getTodayPlan();
       _updateTodayPlan();
       setSelectedBibles(bibleFiles);
+      // 중복 방지: 새로 추가된 성경만 추가
+      for (String bibleFile in bibleFiles) {
+        if (!this.SelectedBibles.contains(bibleFile)) {
+          this.SelectedBibles.add(bibleFile);
+        }
+      }
+
       if (bibleFiles.length > 1) {
         this.DataSource.clear();
         for (String bibleFile in bibleFiles) {
@@ -233,6 +313,7 @@ class MainViewModel extends ChangeNotifier {
   void toggleTheme() {
     _themeMode.value =
         _themeMode.value == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+    _SharedPreferences.setString('themeMode', _themeMode.value.toString().split('.').last);
     notifyListeners();
   }
 
@@ -250,6 +331,8 @@ class MainViewModel extends ChangeNotifier {
   void setSelectedDate(DateTime? date) {
     this.SelectedDate = date;
     this.TodayPlan = getTodayPlan();
+    lastViewedDate = date;
+    _SharedPreferences.setString('lastViewedDate', date?.toIso8601String() ?? '');
     _updateTodayPlan();
     loadMultipleBibles(this.SelectedBibles); // 선택된 성경으로 데이터를 다시 로드
     notifyListeners();
