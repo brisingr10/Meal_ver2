@@ -65,14 +65,14 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter_native_splash:
   color: "#ffffff"
-  image: lib/repository/AppIcon.appiconset/72.png
+  image: AppIcon.appiconset/72.png
   android: true
   ios: true
 
 flutter_icons:
   android: true
   ios: true
-  image_path: lib/repository/AppIcon.appiconset/72.png
+  image_path: AppIcon.appiconset/72.png
 
 flutter:
   # The following line ensures that the Material Icons font is
@@ -80,22 +80,22 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - lib/repository/font/nanumbrush.ttf
-    - lib/repository/font/NanumBarunGothic-YetHangul.ttf
-    - lib/repository/bib_json/개역개정.json
-    - lib/repository/bib_json/개역한글.json
-    - lib/repository/bib_json/새번역.json
-    - lib/repository/bib_json/ESV.json
-    - lib/repository/bib_json/NIV.json
-    - lib/repository/bib_json/우리말.json
-    - lib/repository/AppIcon.appiconset/72.png
+    - font/nanumbrush.ttf
+    - font/NanumBarunGothic-YetHangul.ttf
+    - bib_json/개역개정.json
+    - bib_json/개역한글.json
+    - bib_json/새번역.json
+    - bib_json/ESV.json
+    - bib_json/NIV.json
+    - bib_json/우리말.json
+    - AppIcon.appiconset/72.png
   fonts:
     - family: Mealfont
       fonts:
-        - asset: lib/repository/font/nanumbrush.ttf
+        - asset: font/nanumbrush.ttf
     - family: Biblefont
       fonts:
-        - asset: lib/repository/font/KoPubDotumMedium.ttf
+        - asset: font/KoPubDotumMedium.ttf
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

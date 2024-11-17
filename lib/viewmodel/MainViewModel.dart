@@ -172,7 +172,7 @@ Future<void> performInitialSetup() async {
 
   Future<bool> _configBible() async {
     try {
-      this._Bible = await _loadBibleFile('lib/repository/bib_json/개역개정.json');
+      this._Bible = await _loadBibleFile('bib_json/개역개정.json');
 
       if (this._Bible != null) {
         this._IsBibleLoaded = true;
@@ -222,7 +222,7 @@ Future<void> performInitialSetup() async {
         this.DataSource.clear();
         for (String bibleFile in bibleFiles) {
           Bible? loadedBible = await _loadBibleFile(
-              'lib/repository/bib_json/$bibleFile.json');
+              'bib_json/$bibleFile.json');
           if (loadedBible != null) {
             List<Verse> versesInPlanRange = loadedBible.books
                 .where((book) =>
@@ -265,7 +265,7 @@ Future<void> performInitialSetup() async {
         this.DataSource.clear();
         for (String bibleFile in bibleFiles) {
           Bible? loadedBible = await _loadBibleFile(
-              'lib/repository/bib_json/$bibleFile.json');
+              'bib_json/$bibleFile.json');
           if (loadedBible != null) {
             List<Verse> versesInPlanRange = loadedBible.books
                 .where((book) =>
