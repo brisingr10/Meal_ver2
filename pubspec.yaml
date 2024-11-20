@@ -30,6 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations: # 추가
+    sdk: flutter
   json_annotation: ^4.9.0
   http: ^1.2.2
   shared_preferences: ^2.0.15
