@@ -353,7 +353,9 @@ class ThemeAndBibleMenu extends StatelessWidget {
 
     return Drawer(
       child: SafeArea(
-        child: ListView(
+        child: Stack(
+          children: [
+        ListView(
           padding: EdgeInsets.zero,
           children: [
             Container(
@@ -455,6 +457,39 @@ class ThemeAndBibleMenu extends StatelessWidget {
                     },
                   ),
                 ],
+              ),
+            ),
+          ],
+        ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Opacity(
+                opacity: 0.5, // 투명도 설정
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'First Create By InPyo Hong',
+                        style: TextStyle(
+                          fontFamily: 'Mealfont',
+                          fontSize: 16,
+                          color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
+                        ),
+                      ),
+                      SizedBox(height: 4), // 간격 추가
+                      Text(
+                        'ⓒ 2024. 대한성서공회 all rights reserved.',
+                        style: TextStyle(
+                          fontFamily: 'Mealfont',
+                          fontSize: 16,
+                          color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ],
