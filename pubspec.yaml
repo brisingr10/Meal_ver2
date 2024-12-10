@@ -53,8 +53,8 @@ dev_dependencies:
     sdk: flutter
   build_runner: ^2.4.0
   json_serializable: ^6.6.0
-  flutter_launcher_icons: ^0.13.1
-  flutter_lints: ^4.0.0
+#  flutter_launcher_icons: ^0.13.1
+  #flutter_lints: ^4.0.0
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
@@ -72,12 +72,11 @@ dev_dependencies:
   #android: true
   #ios: true
 
-flutter_launcher_icons:
-  android: "launcher_icon"
-  ios: "AppIcon"
-  image_path_android: AppIcon.appiconset/72.png
-  image_path_ios: AppIcon.appiconset/1024.png
-  remove_alpha_ios: true
+#flutter_launcher_icons:
+#  android: "launcher_icon"
+#  ios: true
+#  image_path: AppIcon.appiconset/72.png
+#  remove_alpha_ios: true
 
 flutter:
   # The following line ensures that the Material Icons font is
@@ -93,7 +92,7 @@ flutter:
     - bib_json/NASB.json
     - bib_json/우리말.json
     - AppIcon.appiconset/72.png
-    - AppIcon.appiconset/1024.png
+    - ios/Runner/Assets.xcassets/AppIcon.appiconset/72.png
   fonts:
     - family: Mealfont
       fonts:
