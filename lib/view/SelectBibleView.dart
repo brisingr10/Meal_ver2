@@ -13,8 +13,7 @@ class _SelectBibleViewState extends State<SelectBibleView> {
     '개역개정': false,
     '개역한글': false,
     '새번역': false,
-    'ESV': false,
-    'NIV': false,
+    'NASB': false,
   };
   int selectedCount = 0;
   List<String> selectedOrder = [];
@@ -57,37 +56,47 @@ class _SelectBibleViewState extends State<SelectBibleView> {
                   ),
             ),
           ),
-          body: Column(
-            children: [
-              Expanded(
-                child: ListView(
-                  children: selectedBibles.keys.map((String bible) {
-                    return CheckboxListTile(
-                      title: Text(
-                        bible,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+              body: Column(
+                children: [
+                  Expanded(
+                    child: ListView(
+                      children: selectedBibles.keys.map((String bible) {
+                        int orderIndex = selectedOrder.indexOf(bible) + 1;
+                        return ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: (selectedBibles[bible] ?? false)
+                                ? Theme.of(context).colorScheme.primary
+                                : Colors.grey[300],
+                            child: Text(
+                              (selectedBibles[bible] ?? false) ? '$orderIndex' : '',
+                              style: TextStyle(
+                                color: (selectedBibles[bible] ?? false) ? Colors.white : Colors.black,
+                              ),
                             ),
-                      ),
-                      value: selectedBibles[bible],
-                      onChanged: (bool? value) {
-                        setState(() {
-                          selectedBibles[bible] =
-                              value ?? false; // 체크박스 상태 업데이트
-                          selectedCount += (value ?? false)?1:-1;
-                          if (value == true) {
-                            selectedOrder.add(bible); // 선택하면 순서에 추가
-                          } else {
-                            selectedOrder.remove(bible); // 선택 해제 시 순서에서 제거
-                          }
-                        });
-                      },
-                      activeColor: Theme.of(context).colorScheme.primary,
-                      checkColor: Theme.of(context).colorScheme.onPrimary,
-                    );
-                  }).toList(),
-                ),
-              ),
+                          ),
+                          title: Text(
+                            bible,
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: themeMode == ThemeMode.dark
+                                  ? Colors.white
+                                  : Colors.black,
+                            ),
+                          ),
+                          onTap: () {
+                            setState(() {
+                              if (selectedBibles[bible] ?? false) {
+                                selectedBibles[bible] = false;
+                                selectedOrder.remove(bible);
+                              } else {
+                                selectedBibles[bible] = true;
+                                selectedOrder.add(bible);
+                              }
+                            });
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ),
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: ElevatedButton(

@@ -125,7 +125,7 @@ class _Meal2ViewState extends State<Meal2View> {
                                   context: context,
                                   initialDate: selectedDate ?? DateTime.now(),
                                   firstDate: DateTime(2020),
-                                  lastDate: DateTime(2024, 12, 31),
+                                  lastDate: DateTime(2030),
                                 );
                                 if (pickedDate != null &&
                                     pickedDate != selectedDate) {
@@ -184,19 +184,26 @@ class _Meal2ViewState extends State<Meal2View> {
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
                                                   children: [
-                                                    Text(
-                                                      '${verse.verse}. ',
-                                                      style: TextStyle(
-                                                        color: Theme.of(context)
-                                                            .textTheme
-                                                            .bodyLarge
-                                                            ?.color,
-                                                        fontFamily: 'Biblefont',
-                                                        fontSize: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width *
-                                                            0.025,
+                                                    Opacity(
+                                                      opacity: bibleIndex == 0
+                                                          ? 1.0
+                                                          : 0.1,
+                                                      child: Text(
+                                                        '${verse.verse}. ',
+                                                        style: TextStyle(
+                                                          color:
+                                                          Theme.of(context)
+                                                              .textTheme
+                                                              .bodyLarge
+                                                              ?.color,
+                                                          fontFamily:
+                                                          'Biblefont',
+                                                          fontSize: MediaQuery.of(
+                                                              context)
+                                                              .size
+                                                              .width *
+                                                              0.025,
+                                                        ),
                                                       ),
                                                     ),
                                                     Expanded(
@@ -215,8 +222,11 @@ class _Meal2ViewState extends State<Meal2View> {
                                                           fontFamily:
                                                               'Biblefont',
                                                           fontSize: isFirstBible
-                                                              ? viewModel.fontSize
-                                                              : viewModel.fontSize * 0.9,
+                                                              ? viewModel
+                                                              .fontSize
+                                                              : viewModel
+                                                              .fontSize *
+                                                              0.9,
                                                         ),
                                                       ),
                                                     ),
@@ -228,7 +238,8 @@ class _Meal2ViewState extends State<Meal2View> {
                                             }
                                           }).toList(),
                                         ),
-                                        SizedBox(height: viewModel.lineSpacing), // 절간 간격 적용// 항목 사이 간격
+                                        SizedBox(height: viewModel.lineSpacing),
+                                        // 절간 간격 적용// 항목 사이 간격
                                       ],
                                     );
                                   },
@@ -267,8 +278,8 @@ class Header extends StatelessWidget {
     final selectedDate = viewModel.SelectedDate;
 
     final displayDate = selectedDate != null
-        ? DateFormat('yyyy-MM-dd').format(selectedDate)
-        : todayString;
+        ? DateFormat('yyyy-MM-dd EEEE', 'ko_KR').format(selectedDate)
+        : DateFormat('yyyy-MM-dd EEEE', 'ko_KR').format(today);
 
     // 오늘의 계획 정보를 가져오기
     final todayPlanDescription = viewModel.TodayPlan != null
@@ -280,7 +291,7 @@ class Header extends StatelessWidget {
       color: Colors.transparent,
       child: Row(
         children: [
-          SizedBox(width: 10),
+          SizedBox(width: 20),
           Expanded(
             child: Column(
               children: [
@@ -289,9 +300,10 @@ class Header extends StatelessWidget {
                   textAlign: TextAlign.left,
                   style: TextStyle(
                     fontFamily: 'Mealfont',
-                    fontSize: 20, // 날짜는 조금 작게
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
+                    color: Theme.of(context).textTheme.bodyLarge?.color ??
+                        Colors.black,
                   ),
                 ),
                 SizedBox(height: 4), // 날짜와 계획 사이 간격
@@ -300,7 +312,7 @@ class Header extends StatelessWidget {
                   textAlign: TextAlign.left,
                   style: TextStyle(
                     fontFamily: 'Mealfont',
-                    fontSize: 20,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).textTheme.bodyLarge?.color ??
                         Colors.black,
