@@ -43,7 +43,7 @@ dependencies:
   cloud_firestore: 5.4.4  # Firestore 사용시
   firebase_analytics: ^11.3.3 # Firebase Analytics 사용시
   firebase_storage: 12.3.3
-  #flutter_native_splash: ^2.0.2
+  flutter_native_splash: ^2.4.3
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
@@ -90,8 +90,7 @@ flutter:
     - bib_json/개역한글.json
     - bib_json/새번역.json
     - bib_json/NASB.json
-    - bib_json/우리말.json
-    - AppIcon.appiconset/128.png
+    - AppIcon.appiconset/splash_image.png
     - ios/Runner/Assets.xcassets/AppIcon.appiconset/72.png
   fonts:
     - family: Mealfont

@@ -17,15 +17,6 @@ import 'firebase_options.dart'; // Firebase 옵션 파일이 있어야 합니다
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Flutter 엔진 초기화
-
-  //CustomThemeMode.instance;
-  // await initializeDateFormatting('ko_KR', null); // 로케일 초기화
-  //
-  // await Firebase.initializeApp(
-  //   options: DefaultFirebaseOptions.currentPlatform,
-  // ); // Firebase 초기화
-  //print('Initializing SharedPreferences...');
-
   try {
     final results = await Future.wait([
       Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
