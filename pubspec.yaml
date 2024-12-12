@@ -53,7 +53,7 @@ dev_dependencies:
     sdk: flutter
   build_runner: ^2.4.0
   json_serializable: ^6.6.0
-  flutter_launcher_icons: ^0.13.1
+#  flutter_launcher_icons: ^0.13.1
   flutter_lints: ^4.0.0
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -72,11 +72,11 @@ dev_dependencies:
   #android: true
   #ios: true
 
-flutter_launcher_icons:
-  android: "launcher_icon"
-  ios: false
-  image_path: AppIcon.appiconset/128.png
-  remove_alpha_ios: true
+#flutter_launcher_icons:
+#  android: "launcher_icon"
+#  ios: false
+#  image_path: AppIcon.appiconset/128.png
+#  remove_alpha_ios: true
 
 flutter:
   # The following line ensures that the Material Icons font is
@@ -87,7 +87,6 @@ flutter:
     - font/nanumbrush.ttf
     - font/NanumBarunGothic-YetHangul.ttf
     - bib_json/개역개정.json
-    - bib_json/개역한글.json
     - bib_json/새번역.json
     - bib_json/NASB.json
     - AppIcon.appiconset/splash_image.png

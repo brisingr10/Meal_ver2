@@ -11,7 +11,6 @@ class _SelectBibleViewState extends State<SelectBibleView> {
   // 선택 상태를 저장하는 변수
   Map<String, bool> selectedBibles = {
     '개역개정': false,
-    '개역한글': false,
     '새번역': false,
     'NASB': false,
   };
