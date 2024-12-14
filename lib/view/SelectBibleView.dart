@@ -25,12 +25,21 @@ class _SelectBibleViewState extends State<SelectBibleView> {
     // ViewModel에서 저장된 선택 상태를 가져와 Map에 반영
     final viewModel = Provider.of<MainViewModel>(context, listen: false);
 
+    bool isAnySelected = false;
+
     for (String bible in viewModel.SelectedBibles) {
-      if (selectedBibles.containsKey(bible)) {
+      if (selectedBibles.containsKey(bible) && !selectedOrder.contains(bible)) {
         selectedBibles[bible] = true;
         selectedCount++;
         selectedOrder.add(bible);
+        isAnySelected = true;
       }
+    }
+    // 아무것도 선택되지 않았을 경우, '개역개정'을 기본 선택 상태로 설정
+    if (!isAnySelected && selectedBibles.containsKey('개역개정')  && !selectedOrder.contains('개역개정')) {
+      selectedBibles['개역개정'] = true;
+      selectedCount++;
+      selectedOrder.add('개역개정');
     }
   }
 

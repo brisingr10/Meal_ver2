@@ -40,10 +40,16 @@ class MainViewModel extends ChangeNotifier {
     _SharedPreferences = sharedPreferences;
     //deleteMealPlan();
     FireBaseFunction.signInAnonymously();
+
     loadSliderSettings();
     loadPreferences();
     _loadSelectedBibles();
+
+    // 저장된 성경 로드
+    selectLoad();
   }
+
+
   void setLoading(bool loading) {
     _IsLoading = loading;
     notifyListeners();
@@ -76,8 +82,10 @@ class MainViewModel extends ChangeNotifier {
   // SharedPreferences에서 선택한 바이블 불러오기
   Future<void> _loadSelectedBibles() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool isFirstRun = prefs.getBool('isFisrtRun') ?? true;
-    Prefinitial(isFirstRun, prefs);
+
+    // 첫 실행 여부 확인
+    bool isFirstRun = prefs.getBool('isFirstRun') ?? true;
+    await Prefinitial(isFirstRun, prefs);
 
     // 테마 모드 불러오기
     String? savedTheme = _SharedPreferences.getString('themeMode');
@@ -91,10 +99,15 @@ class MainViewModel extends ChangeNotifier {
       lastViewedDate = DateTime.tryParse(savedDate);
     }
 
-    // 마지막 선택한 성경 불러오기
+    // 선택된 성경 불러오기
     SelectedBibles = prefs.getStringList('selectedBibles') ?? [];
+    if (SelectedBibles.isEmpty) {
+      // 기본값으로 "개역개정" 추가
+      SelectedBibles.add("개역개정");
+      await saveSelectedBibles();
+    }
 
-    notifyListeners(); // 불러온 데이터를 반영
+    notifyListeners();
   }
 
   Future<void> Prefinitial(bool isfirstrun, SharedPreferences prefs) async
@@ -216,6 +229,10 @@ Future<void> performInitialSetup() async {
         if (!this.SelectedBibles.contains(bibleFile)) {
           this.SelectedBibles.add(bibleFile);
         }
+      }
+
+      if (bibleFiles.isEmpty) {
+        bibleFiles.add("개역개정"); // bibleFiles가 비어 있을 때 "개역개정" 추가
       }
 
       if (bibleFiles.length > 1) {
@@ -385,17 +402,27 @@ Future<void> performInitialSetup() async {
   }
 
   Future<void> selectLoad() async {
-    if (!this._IsBibleLoaded) {
-      await _configBible();
-    }
-    List<String> savedBibles =
-        _SharedPreferences.getStringList('selectedBibles') ?? [];
-    if (savedBibles.isNotEmpty) {
+    try {
+      // 저장된 성경 불러오기
+      List<String> savedBibles = _SharedPreferences.getStringList('selectedBibles') ?? [];
+
+      // 설정된 성경이 없으면 기본값으로 "개역개정" 추가
+      if (savedBibles.isEmpty) {
+        savedBibles.add("개역개정");
+        setSelectedBibles(savedBibles);
+      }
+
+      // 설정된 성경 로드
       await loadMultipleBibles(savedBibles);
-    }
-    if (this._Bible != null && this._Bible!.books.isNotEmpty) {
-      this.TodayPlan = getTodayPlan();
-      _updateTodayPlan();
+
+      // 오늘의 계획 로드
+      if (this._Bible != null && this._Bible!.books.isNotEmpty) {
+        this.TodayPlan = getTodayPlan();
+        _updateTodayPlan();
+      }
+      notifyListeners(); // UI 갱신 보장
+    } catch (e) {
+      print("Error during selectLoad: $e");
     }
   }
 

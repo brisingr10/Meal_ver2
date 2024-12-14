@@ -89,26 +89,22 @@ class _Meal2ViewState extends State<Meal2View> {
             theme: ThemeData.light(),
             darkTheme: ThemeData.dark(),
             home: Scaffold(
-              // 우측에서 열리는 메뉴 추가
               endDrawer: Drawer(
                 child: ThemeAndBibleMenu(),
               ),
               body: SafeArea(
                 child: Consumer<MainViewModel>(
                   builder: (context, viewModel, child) {
-                    // 로딩 중일 때
                     if (viewModel.IsLoading) {
                       print('UI: Loading state...');
                       return Center(child: CircularProgressIndicator());
                     }
 
-                    // 로딩이 끝났지만 데이터가 없는 경우
                     if (viewModel.DataSource.isEmpty) {
                       print('UI: No data available.');
                       return Center(child: Text('No data available'));
                     }
 
-                    // 로딩이 끝나고 데이터가 있는 경우
                     print('UI: Displaying data.');
                     return Container(
                       color: Theme.of(context).colorScheme.background,
@@ -120,8 +116,7 @@ class _Meal2ViewState extends State<Meal2View> {
                             Header(
                               selectedDate: selectedDate,
                               onSelectDate: () async {
-                                final DateTime? pickedDate =
-                                    await showDatePicker(
+                                final DateTime? pickedDate = await showDatePicker(
                                   context: context,
                                   initialDate: selectedDate ?? DateTime.now(),
                                   firstDate: DateTime(2020),
@@ -139,107 +134,64 @@ class _Meal2ViewState extends State<Meal2View> {
                             SizedBox(height: 16.0), // 헤더와 본문 사이에 간격 추가
                             Expanded(
                               child: RefreshIndicator(
-                                onRefresh: _refreshData, // 새로고침 호출
+                                onRefresh: _refreshData,
                                 child: ListView.builder(
                                   controller: ScrollController(),
                                   itemCount: viewModel.DataSource[0].length,
-                                  // 각 성경의 구절 수로 설정 (동일한 절 수라고 가정)
                                   itemBuilder: (context, index) {
                                     return Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: viewModel.DataSource.asMap()
-                                              .entries
-                                              .map((entry) {
-                                            int bibleIndex = entry.key;
-                                            List<Verse> bibleVerses =
-                                                entry.value;
+                                        ...viewModel.DataSource.asMap().entries.map((entry) {
+                                          int bibleIndex = entry.key;
+                                          List<Verse> bibleVerses = entry.value;
 
-                                            if (index < bibleVerses.length) {
-                                              Verse verse = bibleVerses[index];
-                                              bool isFirstBible = bibleIndex ==
-                                                  0; // 첫 번째 성경인지 확인
+                                          if (index < bibleVerses.length) {
+                                            Verse verse = bibleVerses[index];
+                                            bool isFirstBible = bibleIndex == 0;
 
-                                              return GestureDetector(
-                                                onLongPress: () {
-                                                  // 구절 전체를 복사
-                                                  final textToCopy =
-                                                      '${verse.verse}. ${verse.btext}';
-                                                  Clipboard.setData(
-                                                      ClipboardData(
-                                                          text: textToCopy));
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(
-                                                    SnackBar(
-                                                      content: Text(
-                                                          '구절이 복사되었습니다: $textToCopy'),
-                                                    ),
-                                                  );
-                                                },
-                                                child: Row(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Opacity(
-                                                      opacity: bibleIndex == 0
-                                                          ? 1.0
-                                                          : 0.1,
-                                                      child: Text(
-                                                        '${verse.verse}. ',
-                                                        style: TextStyle(
-                                                          color:
-                                                          Theme.of(context)
-                                                              .textTheme
-                                                              .bodyLarge
-                                                              ?.color,
-                                                          fontFamily:
-                                                          'Biblefont',
-                                                          fontSize: MediaQuery.of(
-                                                              context)
-                                                              .size
-                                                              .width *
-                                                              0.025,
-                                                        ),
+                                            return GestureDetector(
+                                              onLongPress: () {
+                                                final textToCopy = '${verse
+                                                    .verse}. ${verse.btext}';
+                                                Clipboard.setData(ClipboardData(text: textToCopy));
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(content: Text('구절이 복사되었습니다: $textToCopy')),
+                                                );
+                                              },
+                                              child: Row(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [Opacity(opacity: isFirstBible? 1.0: 0.1,
+                                                    child: Container(
+                                                      alignment: Alignment.centerRight,
+                                                      width: MediaQuery.of(context).size.width * 0.045,
+                                                      child: Text('${verse.verse}. ',
+                                                        style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color,
+                                                          fontFamily: 'Biblefont',
+                                                          fontSize: MediaQuery.of(context).size.width * 0.025,),
+                                                          textAlign: TextAlign.right,
                                                       ),
                                                     ),
-                                                    Expanded(
-                                                      child: SelectableText(
-                                                        verse.btext,
-                                                        style: TextStyle(
-                                                          color: isFirstBible
-                                                              ? Theme.of(
-                                                                      context)
-                                                                  .textTheme
-                                                                  .bodyLarge
-                                                                  ?.color
-                                                              : Colors.grey,
-                                                          fontWeight:
-                                                              FontWeight.normal,
-                                                          fontFamily:
-                                                              'Biblefont',
-                                                          fontSize: isFirstBible
-                                                              ? viewModel
-                                                              .fontSize
-                                                              : viewModel
-                                                              .fontSize *
-                                                              0.9,
-                                                        ),
+                                                  ),
+                                                  SizedBox(width: MediaQuery.of(context).size.width * 0.01,),
+                                                  Expanded(
+                                                    child: SelectableText(verse.btext,
+                                                      style: TextStyle(color: isFirstBible? Theme.of(context).textTheme.bodyLarge?.color: Colors.grey,
+                                                        fontWeight: FontWeight.normal,
+                                                        fontFamily: 'Biblefont',
+                                                        fontSize: isFirstBible? viewModel.fontSize: viewModel.fontSize * 0.9,
                                                       ),
                                                     ),
-                                                  ],
-                                                ),
-                                              );
-                                            } else {
-                                              return SizedBox.shrink();
-                                            }
-                                          }).toList(),
-                                        ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          } else {
+                                            return SizedBox.shrink();
+                                          }
+                                        }).toList(),
+                                        // 절간 간격 추가
                                         SizedBox(height: viewModel.lineSpacing),
-                                        // 절간 간격 적용// 항목 사이 간격
                                       ],
                                     );
                                   },
@@ -260,7 +212,8 @@ class _Meal2ViewState extends State<Meal2View> {
     );
   }
 }
-
+//SizedBox(height: viewModel.lineSpacing),
+// 절간 간격 적용// 항목 사이 간격
 class Header extends StatelessWidget {
   final DateTime? selectedDate;
   final VoidCallback onSelectDate;
@@ -298,12 +251,9 @@ class Header extends StatelessWidget {
                 Text(
                   displayDate,
                   textAlign: TextAlign.left,
-                  style: TextStyle(
-                    fontFamily: 'Mealfont',
-                    fontSize: 24,
+                  style: TextStyle(fontFamily: 'Mealfont',fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).textTheme.bodyLarge?.color ??
-                        Colors.black,
+                    color: Theme.of(context).textTheme.bodyLarge?.color ??Colors.black,
                   ),
                 ),
                 SizedBox(height: 4), // 날짜와 계획 사이 간격
@@ -314,8 +264,7 @@ class Header extends StatelessWidget {
                     fontFamily: 'Mealfont',
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).textTheme.bodyLarge?.color ??
-                        Colors.black,
+                    color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
                   ),
                 ),
               ],
@@ -367,8 +316,7 @@ class ThemeAndBibleMenu extends StatelessWidget {
                 '설정',
                 style: TextStyle(
                   fontFamily: 'Mealfont',
-                  color: Theme.of(context).textTheme.bodyLarge?.color ??
-                      Colors.black,
+                  color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
                   fontSize: 24,
                 ),
               ),
@@ -383,8 +331,7 @@ class ThemeAndBibleMenu extends StatelessWidget {
                 '테마 변경',
                 style: TextStyle(
                   fontFamily: 'Mealfont',
-                  color: Theme.of(context).textTheme.bodyLarge?.color ??
-                      Colors.black,
+                  color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
                   fontSize: 24,
                 ),
               ),
@@ -399,8 +346,7 @@ class ThemeAndBibleMenu extends StatelessWidget {
                 '성경 선택',
                 style: TextStyle(
                   fontFamily: 'Mealfont',
-                  color: Theme.of(context).textTheme.bodyLarge?.color ??
-                      Colors.black,
+                  color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
                   fontSize: 24,
                 ),
               ),
@@ -421,8 +367,7 @@ class ThemeAndBibleMenu extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: 'Mealfont',
                       fontSize: 16,
-                      color: Theme.of(context).textTheme.bodyLarge?.color ??
-                          Colors.black,
+                      color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
                     ),
                   ),
                   Slider(
@@ -441,8 +386,7 @@ class ThemeAndBibleMenu extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: 'Mealfont',
                       fontSize: 16,
-                      color: Theme.of(context).textTheme.bodyLarge?.color ??
-                          Colors.black,
+                      color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
                     ),
                   ),
                   Slider(
