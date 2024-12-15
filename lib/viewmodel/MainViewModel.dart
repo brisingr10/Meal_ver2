@@ -52,7 +52,7 @@ class MainViewModel extends ChangeNotifier {
 
   void setLoading(bool loading) {
     _IsLoading = loading;
-    notifyListeners();
+    //notifyListeners();
   }
   void updateFontSize(double size) async{
     _fontSize = size;
@@ -206,40 +206,44 @@ Future<void> performInitialSetup() async {
     }
   }
 
-  Future<Bible?> _loadBibleFile(String path) async {
+  Future<Bible?> _loadBibleFile(String _path) async {
     try {
-      String bibleJsonString = await rootBundle.loadString(path);
-      final jsonData = jsonDecode(bibleJsonString) as List<dynamic>;
-      return Bible.fromJson(jsonData);
+      String bibleJsonString = await rootBundle.loadString(_path, cache: false); // 파일 로드
+      final jsonData = jsonDecode(bibleJsonString) as List<dynamic>; // JSON 디코드
+      return Bible.fromJson(jsonData); // 객체 생성 후 반환
     } catch (e) {
-      print('Error loading Bible file from $path: $e');
+      print('Error loading Bible file from $_path: $e');
       return null;
     }
   }
 
   Future<void> loadMultipleBibles(List<String> bibleFiles) async {
-    setLoading(true);
+    setLoading(true); // 로딩 상태 시작
+    List<List<Verse>> newDataSource = [];
     try {
+      // DataSource 초기화 및 현재 계획 업데이트
       this.DataSource.clear();
-      this.TodayPlan = getTodayPlan();
-      _updateTodayPlan();
+      //this.TodayPlan = getTodayPlan();
+      //_updateTodayPlan();
       setSelectedBibles(bibleFiles);
+
+      // if (bibleFiles.isEmpty) {
+      //   bibleFiles.add("개역개정"); // 기본 성경 추가
+      // }
+
       // 중복 방지: 새로 추가된 성경만 추가
       for (String bibleFile in bibleFiles) {
         if (!this.SelectedBibles.contains(bibleFile)) {
           this.SelectedBibles.add(bibleFile);
         }
       }
+      // 모든 성경 파일 로드
+      await Future.forEach<String>(bibleFiles, (bibleFile) async {
+        try {
+          String path = 'bib_json/$bibleFile.json';
+          print('Current path being loaded: $path');
+          Bible? loadedBible = await _loadBibleFile(path);
 
-      if (bibleFiles.isEmpty) {
-        bibleFiles.add("개역개정"); // bibleFiles가 비어 있을 때 "개역개정" 추가
-      }
-
-      if (bibleFiles.length > 1) {
-        this.DataSource.clear();
-        for (String bibleFile in bibleFiles) {
-          Bible? loadedBible = await _loadBibleFile(
-              'bib_json/$bibleFile.json');
           if (loadedBible != null) {
             List<Verse> versesInPlanRange = loadedBible.books
                 .where((book) =>
@@ -248,82 +252,40 @@ Future<void> performInitialSetup() async {
                     book.chapter == this.TodayPlan!.lChap! &&
                     book.verse >= this.TodayPlan!.fVer! &&
                     book.verse <= this.TodayPlan!.lVer!) ||
-
-                    // fChap와 lChap이 다른 장인 경우
                     (book.chapter > this.TodayPlan!.fChap! &&
                         book.chapter < this.TodayPlan!.lChap!) ||
-
-// 시작 장인 경우: fVer 이후의 구절만 포함
                     (book.chapter == this.TodayPlan!.fChap &&
-                        book.verse >= this.TodayPlan!.fVer!) &&
-                        this.TodayPlan!.fChap != this.TodayPlan!.lChap ||
-
-                    // 끝 장인 경우: lVer 이전의 구절만 포함
+                        book.verse >= this.TodayPlan!.fVer! &&
+                        this.TodayPlan!.fChap != this.TodayPlan!.lChap) ||
                     (book.chapter == this.TodayPlan!.lChap &&
-                        book.verse <= this.TodayPlan!.lVer!) &&
-                        this.TodayPlan!.fChap != this.TodayPlan!.lChap
-                ))
-                .map((book) =>
-                Verse(
-                    book: book.book,
-                    btext: book.btext,
-                    fullName: book.fullName,
-                    chapter: book.chapter,
-                    id: book.id,
-                    verse: book.verse))
-                .toList();
-            this.DataSource.add(versesInPlanRange);
+                        book.verse <= this.TodayPlan!.lVer! &&
+                        this.TodayPlan!.fChap != this.TodayPlan!.lChap)))
+                .map((book) => Verse(
+              book: book.book,
+              btext: book.btext,
+              fullName: book.fullName,
+              chapter: book.chapter,
+              id: book.id,
+              verse: book.verse,
+            )).toList();
+
+            newDataSource.add(versesInPlanRange);
+            print('Added data for $bibleFile. Current newDataSource length: ${newDataSource.length}');
+
           } else {
             print('Error loading Bible file: $bibleFile');
           }
+        } catch (e) {
+          print('Error processing Bible file $bibleFile: $e');
         }
-      }
-      else {
-        this.DataSource.clear();
-        for (String bibleFile in bibleFiles) {
-          Bible? loadedBible = await _loadBibleFile(
-              'bib_json/$bibleFile.json');
-          if (loadedBible != null) {
-            List<Verse> versesInPlanRange = loadedBible.books
-                .where((book) =>
-            book.book == this.TodayPlan?.book &&
-                ((book.chapter == this.TodayPlan!.fChap! &&
-                    book.chapter == this.TodayPlan!.lChap! &&
-                    book.verse >= this.TodayPlan!.fVer! &&
-                    book.verse <= this.TodayPlan!.lVer!) ||
+      });
 
-                    // fChap와 lChap이 다른 장인 경우
-                    (book.chapter > this.TodayPlan!.fChap! &&
-                        book.chapter < this.TodayPlan!.lChap!) ||
-
-// 시작 장인 경우: fVer 이후의 구절만 포함
-                    (book.chapter == this.TodayPlan!.fChap &&
-                        book.verse >= this.TodayPlan!.fVer!) &&
-                        this.TodayPlan!.fChap != this.TodayPlan!.lChap ||
-
-                    // 끝 장인 경우: lVer 이전의 구절만 포함
-                    (book.chapter == this.TodayPlan!.lChap &&
-                        book.verse <= this.TodayPlan!.lVer!) &&
-                        this.TodayPlan!.fChap != this.TodayPlan!.lChap
-                ))
-                .map((book) =>
-                Verse(
-                    book: book.book,
-                    btext: book.btext,
-                    fullName: book.fullName,
-                    chapter: book.chapter,
-                    id: book.id,
-                    verse: book.verse))
-                .toList();
-            this.DataSource.add(versesInPlanRange);
-          }
-        }
-      }
+      // 모든 데이터 로드 후 DataSource에 반영
+      this.DataSource = newDataSource;
+      print('Finished loading all bibles. Final DataSource length: ${this.DataSource.length}');
+    } finally {
+      setLoading(false); // 로딩 상태 종료
       notifyListeners();
-    }
-    finally
-    {
-      setLoading(false);
     }
   }
 
@@ -411,15 +373,16 @@ Future<void> performInitialSetup() async {
         savedBibles.add("개역개정");
         setSelectedBibles(savedBibles);
       }
-
+      this.TodayPlan = getTodayPlan();
+      _updateTodayPlan();
       // 설정된 성경 로드
       await loadMultipleBibles(savedBibles);
 
       // 오늘의 계획 로드
-      if (this._Bible != null && this._Bible!.books.isNotEmpty) {
-        this.TodayPlan = getTodayPlan();
-        _updateTodayPlan();
-      }
+      // if (this._Bible != null && this._Bible!.books.isNotEmpty) {
+      //   this.TodayPlan = getTodayPlan();
+      //   _updateTodayPlan();
+      // }
       notifyListeners(); // UI 갱신 보장
     } catch (e) {
       print("Error during selectLoad: $e");
@@ -465,10 +428,7 @@ Future<void> performInitialSetup() async {
       this.TodayPlan?.fullName = matchingBook.fullName;
     }
 
-    List<Verse> versesInRange = this
-        ._Bible!
-        .books
-        .where((book) =>
+    List<Verse> versesInRange = this._Bible!.books.where((book) =>
             book.book == this.TodayPlan?.book &&
             (// fChap와 lChap이 같은 장인 경우
                 (book.chapter == this.TodayPlan!.fChap! &&
