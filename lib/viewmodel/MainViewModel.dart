@@ -128,7 +128,10 @@ Future<void> performInitialSetup() async {
   // 초기화 작업 수행
   // 예: 기본값 저장, 설정 초기화
   final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('defaultSetting', 'value');
+  await prefs.setStringList('selectedBibles', ['개역개정']); // 기본 성경 추가
+  await prefs.setString('themeMode', 'light'); // 기본 테마 설정
+  await prefs.setDouble('fontSize', 16.0); // 기본 글꼴 크기
+  await prefs.setDouble('lineSpacing', 16.0); // 기본 줄 간격
   print('초기 설정 완료');
 }
 
