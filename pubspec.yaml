@@ -87,6 +87,7 @@ flutter:
     - font/NanumBarunGothic-YetHangul.ttf
     - bib_json/개역개정.json
     - bib_json/새번역.json
+    - bib_json/공동번역.json
     - bib_json/NASB.json
     - AppIcon.appiconset/splash_image.png
     - ios/Runner/Assets.xcassets/AppIcon.appiconset/72.png
