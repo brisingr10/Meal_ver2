@@ -83,8 +83,9 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - font/nanumbrush.ttf
-    - font/NanumBarunGothic-YetHangul.ttf
+    - font/LINESeedKR-Rg.ttf
+    - font/Pretendard-Bold.ttf
+    - font/MaruBuri-Regular.ttf
     - bib_json/개역개정.json
     - bib_json/새번역.json
     - bib_json/공동번역.json
@@ -94,10 +95,13 @@ flutter:
   fonts:
     - family: Mealfont
       fonts:
-        - asset: font/nanumbrush.ttf
+        - asset: font/LINESeedKR-Rg.ttf
+    - family: Settingfont
+      fonts:
+        - asset: font/Pretendard-Bold.ttf
     - family: Biblefont
       fonts:
-        - asset: font/KoPubDotumMedium.ttf
+        - asset: font/MaruBuri-Regular.ttf
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

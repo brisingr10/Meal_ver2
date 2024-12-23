@@ -231,12 +231,12 @@ class Header extends StatelessWidget {
     final selectedDate = viewModel.SelectedDate;
 
     final displayDate = selectedDate != null
-        ? DateFormat('yyyy-MM-dd EEEE', 'ko_KR').format(selectedDate)
-        : DateFormat('yyyy-MM-dd EEEE', 'ko_KR').format(today);
+        ? DateFormat('yy-MM-dd EEEE', 'ko_KR').format(selectedDate)
+        : DateFormat('yy-MM-dd EEEE', 'ko_KR').format(today);
 
     // 오늘의 계획 정보를 가져오기
     final todayPlanDescription = viewModel.TodayPlan != null
-        ? '${viewModel.TodayPlan!.fullName} ${viewModel.TodayPlan!.fChap}:${viewModel.TodayPlan!.fVer} - ${viewModel.TodayPlan!.lChap}:${viewModel.TodayPlan!.lVer} 절'
+        ? '${viewModel.TodayPlan!.book} ${viewModel.TodayPlan!.fChap}:${viewModel.TodayPlan!.fVer} - ${viewModel.TodayPlan!.lChap}:${viewModel.TodayPlan!.lVer}'
         : '오늘의 계획이 없습니다';
 
     return Container(
@@ -251,8 +251,8 @@ class Header extends StatelessWidget {
                 Text(
                   displayDate,
                   textAlign: TextAlign.left,
-                  style: TextStyle(fontFamily: 'Mealfont',fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                  style: TextStyle(fontFamily: 'Mealfont',fontSize: 16,
+                    fontWeight: FontWeight.normal,
                     color: Theme.of(context).textTheme.bodyLarge?.color ??Colors.black,
                   ),
                 ),
@@ -262,8 +262,8 @@ class Header extends StatelessWidget {
                   textAlign: TextAlign.left,
                   style: TextStyle(
                     fontFamily: 'Mealfont',
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    fontWeight: FontWeight.normal,
                     color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
                   ),
                 ),
@@ -315,9 +315,9 @@ class ThemeAndBibleMenu extends StatelessWidget {
               child: Text(
                 '설정',
                 style: TextStyle(
-                  fontFamily: 'Mealfont',
+                  fontFamily: 'Settingfont',
                   color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
-                  fontSize: 24,
+                  fontSize: 16,
                 ),
               ),
             ),
@@ -330,9 +330,9 @@ class ThemeAndBibleMenu extends StatelessWidget {
               title: Text(
                 '테마 변경',
                 style: TextStyle(
-                  fontFamily: 'Mealfont',
+                  fontFamily: 'Settingfont',
                   color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
-                  fontSize: 24,
+                  fontSize: 16,
                 ),
               ),
               onTap: () {
@@ -345,9 +345,9 @@ class ThemeAndBibleMenu extends StatelessWidget {
               title: Text(
                 '성경 선택',
                 style: TextStyle(
-                  fontFamily: 'Mealfont',
+                  fontFamily: 'Settingfont',
                   color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
-                  fontSize: 24,
+                  fontSize: 16,
                 ),
               ),
               onTap: () {
@@ -365,8 +365,8 @@ class ThemeAndBibleMenu extends StatelessWidget {
                   Text(
                     '글자 크기',
                     style: TextStyle(
-                      fontFamily: 'Mealfont',
-                      fontSize: 16,
+                      fontFamily: 'Settingfont',
+                      fontSize: 14,
                       color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
                     ),
                   ),
@@ -384,8 +384,8 @@ class ThemeAndBibleMenu extends StatelessWidget {
                   Text(
                     '절간 간격',
                     style: TextStyle(
-                      fontFamily: 'Mealfont',
-                      fontSize: 16,
+                      fontFamily: 'Settingfont',
+                      fontSize: 14,
                       color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
                     ),
                   ),
@@ -417,7 +417,7 @@ class ThemeAndBibleMenu extends StatelessWidget {
                         'First Create By InPyo Hong',
                         style: TextStyle(
                           fontFamily: 'Mealfont',
-                          fontSize: 16,
+                          fontSize: 10,
                           color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
                         ),
                       ),
@@ -426,7 +426,7 @@ class ThemeAndBibleMenu extends StatelessWidget {
                         'ⓒ 2024. 대한성서공회 all rights reserved.',
                         style: TextStyle(
                           fontFamily: 'Mealfont',
-                          fontSize: 16,
+                          fontSize: 10,
                           color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
                         ),
                       ),

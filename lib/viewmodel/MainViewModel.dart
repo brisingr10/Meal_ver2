@@ -29,6 +29,11 @@ class MainViewModel extends ChangeNotifier {
   bool get IsLoading => this._IsLoading;
   double _fontSize = 16.0;
   double _lineSpacing = 16.0;
+  Bible? _newRevisedBible;
+  Bible? _newStandardBible;
+  Bible? _commonTransBible;
+  Bible? _nasbBible;
+
 
   double get fontSize => _fontSize;
   double get lineSpacing => _lineSpacing;
@@ -41,18 +46,24 @@ class MainViewModel extends ChangeNotifier {
     //deleteMealPlan();
     FireBaseFunction.signInAnonymously();
 
-    loadSliderSettings();
-    loadPreferences();
-    _loadSelectedBibles().then((_) {
-      selectLoad();
-      notifyListeners();
-    });
-    //refreshVersesForDate(this.SelectedDate);
-    //selectLoad();
+
+    _initialize();
+
   }
   void setLoading(bool loading) {
     _IsLoading = loading;
-    //notifyListeners();
+  }
+
+  Future<void> _initialize() async{
+    await loadSliderSettings();
+    await loadPreferences();
+    await _loadSelectedBibles();
+    await selectLoad();
+    notifyListeners();
+    // _loadSelectedBibles().then((_) {
+    //   selectLoad();
+    //   notifyListeners();
+    // });
   }
 
   void updateFontSize(double size) async{
@@ -62,7 +73,7 @@ class MainViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> loadSliderSettings() async {
+  Future<void> loadSliderSettings() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _fontSize = prefs.getDouble('fontSize') ?? 16.0; // 기본값 16.0
     _lineSpacing = prefs.getDouble('lineSpacing') ?? 16.0; // 기본값 16.0
@@ -90,13 +101,13 @@ class MainViewModel extends ChangeNotifier {
     await Prefinitial(isFirstRun, prefs);
 
     // 테마 모드 불러오기
-    String? savedTheme = _SharedPreferences.getString('themeMode');
+    String? savedTheme = prefs.getString('themeMode');
     if (savedTheme != null) {
       _themeMode.value = savedTheme == 'dark' ? ThemeMode.dark : ThemeMode.light;
     }
 
     // 마지막 본 날짜 불러오기
-    String? savedDate = _SharedPreferences.getString('lastViewedDate');
+    String? savedDate = prefs.getString('lastViewedDate');
     if (savedDate != null) {
       lastViewedDate = DateTime.tryParse(savedDate);
     }
@@ -132,6 +143,11 @@ Future<void> performInitialSetup(SharedPreferences prefs) async {
   await prefs.setString('themeMode', 'light'); // 기본 테마 설정
   await prefs.setDouble('fontSize', 16.0); // 기본 글꼴 크기
   await prefs.setDouble('lineSpacing', 16.0); // 기본 줄 간격
+  await prefs.setString('newRevisedBible', jsonEncode(_newRevisedBible!.toJson()));
+  await prefs.setString('newStandardBible',  jsonEncode(_newRevisedBible!.toJson()));
+  await prefs.setString('commonTransBible',  jsonEncode(_newRevisedBible!.toJson()));
+  await prefs.setString('nasbBible',  jsonEncode(_newRevisedBible!.toJson()));
+
   await prefs.setBool('isFirstRun', false);
   print('초기 설정 완료');
 }
@@ -140,9 +156,10 @@ Future<void> performInitialSetup(SharedPreferences prefs) async {
   Future<bool> loadPreferences() async {
     try {
       this._IsLoading = true;
-      //notifyListeners();
 
+      await loadAllbible();
       _SharedPreferences = await SharedPreferences.getInstance();
+
 
       if (!this._IsBibleLoaded) {
         await _configBible();
@@ -210,6 +227,14 @@ Future<void> performInitialSetup(SharedPreferences prefs) async {
     }
   }
 
+  Future<void> loadAllbible() async
+  {
+    this._newRevisedBible = await _loadBibleFile('bib_json/개역개정.json');
+    this._newStandardBible = await _loadBibleFile('bib_json/새번역.json');
+    this._commonTransBible = await _loadBibleFile('bib_json/공동번역.json');
+    this._nasbBible = await _loadBibleFile('bib_json/NASB.json');
+  }
+
   Future<Bible?> _loadBibleFile(String _path) async {
     try {
       String bibleJsonString = await rootBundle.loadString(_path, cache: false); // 파일 로드
@@ -238,9 +263,8 @@ Future<void> performInitialSetup(SharedPreferences prefs) async {
       // 모든 성경 파일 로드
       await Future.forEach<String>(bibleFiles, (bibleFile) async {
         try {
-          String path = 'bib_json/$bibleFile.json';
-          print('Current path being loaded: $path');
-          Bible? loadedBible = await _loadBibleFile(path);
+          print('Current path being loaded: $bibleFile');
+          Bible? loadedBible = await selectBible(bibleFile);
 
           if (loadedBible != null) {
             List<Verse> versesInPlanRange = loadedBible.books
@@ -289,6 +313,27 @@ Future<void> performInitialSetup(SharedPreferences prefs) async {
     }
   }
 
+  Future<Bible?> selectBible(String bibleFile) async
+  {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    Bible newbible;
+    switch (bibleFile) {
+      case "개역개정":
+        String? revisedJson = prefs.getString('newRevisedBible');
+        return newbible = Bible.fromJson(jsonDecode(revisedJson!));
+      case "새번역":
+        String? standardJson  = prefs.getString('newStandardBible');
+        return newbible = Bible.fromJson(jsonDecode(standardJson!));
+      case "공동번역":
+        String? commonTransJson   = prefs.getString('commonTransBible');
+        return newbible = Bible.fromJson(jsonDecode(commonTransJson!));
+      case "NASB":
+        String? nasbJson   = prefs.getString('nasbBible');
+        return newbible = Bible.fromJson(jsonDecode(nasbJson!));
+    }
+  }
+
+
   void toggleTheme() {
     _themeMode.value =
         _themeMode.value == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
@@ -307,11 +352,12 @@ Future<void> performInitialSetup(SharedPreferences prefs) async {
     return null;
   }
 
-  void setSelectedDate(DateTime? date) {
+  void setSelectedDate(DateTime? date) async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     this.SelectedDate = date;
     this.TodayPlan = getTodayPlan();
     lastViewedDate = date;
-    _SharedPreferences.setString('lastViewedDate', date?.toIso8601String() ?? '');
+    prefs.setString('lastViewedDate', this.SelectedDate.toString());
     _updateTodayPlan();
     _addDataSource();
     loadMultipleBibles(this.SelectedBibles); // 선택된 성경으로 데이터를 다시 로드
