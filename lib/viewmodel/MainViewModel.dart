@@ -33,6 +33,7 @@ class MainViewModel extends ChangeNotifier {
   Bible? _newStandardBible;
   Bible? _commonTransBible;
   Bible? _nasbBible;
+  String bibleType = '';
 
 
   double get fontSize => _fontSize;
@@ -50,20 +51,15 @@ class MainViewModel extends ChangeNotifier {
     _initialize();
 
   }
-  void setLoading(bool loading) {
-    _IsLoading = loading;
-  }
+
 
   Future<void> _initialize() async{
+
     await loadSliderSettings();
     await loadPreferences();
     await _loadSelectedBibles();
     await selectLoad();
     notifyListeners();
-    // _loadSelectedBibles().then((_) {
-    //   selectLoad();
-    //   notifyListeners();
-    // });
   }
 
   void updateFontSize(double size) async{
@@ -119,8 +115,6 @@ class MainViewModel extends ChangeNotifier {
       SelectedBibles.add("개역개정");
       await saveSelectedBibles();
     }
-
-    //notifyListeners();
   }
 
   Future<void> Prefinitial(bool isfirstrun, SharedPreferences prefs) async
@@ -175,14 +169,13 @@ Future<void> performInitialSetup(SharedPreferences prefs) async {
       return false;
     } finally {
       this._IsLoading = false;
-      //notifyListeners();
     }
   }
 
   void setSelectedBibles(List<String> bibles) {
     this.SelectedBibles = bibles;
     saveSelectedBibles(); // 선택 상태 저장
-    notifyListeners();
+    //notifyListeners();
   }
 
   Future<void> refreshVersesForDate(DateTime? date) async {
@@ -247,7 +240,7 @@ Future<void> performInitialSetup(SharedPreferences prefs) async {
   }
 
   Future<void> loadMultipleBibles(List<String> bibleFiles) async {
-    setLoading(true); // 로딩 상태 시작
+    this._IsLoading = true;
     List<List<Verse>> newDataSource = [];
     try {
       // DataSource 초기화 및 현재 계획 업데이트
@@ -265,6 +258,7 @@ Future<void> performInitialSetup(SharedPreferences prefs) async {
         try {
           print('Current path being loaded: $bibleFile');
           Bible? loadedBible = await selectBible(bibleFile);
+          this.bibleType = await getBibleType(bibleFile);
 
           if (loadedBible != null) {
             List<Verse> versesInPlanRange = loadedBible.books
@@ -283,6 +277,7 @@ Future<void> performInitialSetup(SharedPreferences prefs) async {
                         book.verse <= this.TodayPlan!.lVer! &&
                         this.TodayPlan!.fChap != this.TodayPlan!.lChap)))
                 .map((book) => Verse(
+              bibleType: this.bibleType,
               book: book.book,
               btext: book.btext,
               fullName: book.fullName,
@@ -308,10 +303,27 @@ Future<void> performInitialSetup(SharedPreferences prefs) async {
       this.DataSource = newDataSource;
       print('Finished loading all bibles. Final DataSource length: ${this.DataSource.length}');
     } finally {
-      setLoading(false); // 로딩 상태 종료
+      this._IsLoading = false;
       notifyListeners();
     }
   }
+
+  Future<String> getBibleType(String bibleFile) async
+  {
+    switch (bibleFile){
+      case "개역개정":
+        return "[개역개정]";
+      case "새번역":
+        return "[새번역]";
+      case "공동번역":
+        return "[공동번역]";
+      case "NASB":
+        return "[NASB]";
+      default:
+        return "[Not Select]";
+    }
+  }
+
 
   Future<Bible?> selectBible(String bibleFile) async
   {
@@ -385,7 +397,7 @@ Future<void> performInitialSetup(SharedPreferences prefs) async {
 
   Future<void> _getMealPlan() async {
     this._IsLoading = true;
-    notifyListeners();
+    //notifyListeners();
 
     try {
       String downLoadURL = await FireBaseFunction.downloadFile();
@@ -406,15 +418,12 @@ Future<void> performInitialSetup(SharedPreferences prefs) async {
       print("Error fetching meal plan: $e");
     } finally {
       this._IsLoading = false;
-      notifyListeners();
+      //notifyListeners();
     }
   }
 
   Future<void> selectLoad() async {
     try {
-      // 저장된 성경 불러오기
-      //List<String> savedBibles = _SharedPreferences.getStringList('selectedBibles') ?? [];
-
       // 설정된 성경이 없으면 기본값으로 "개역개정" 추가
       this.TodayPlan = getTodayPlan();
       _updateTodayPlan();
@@ -422,12 +431,6 @@ Future<void> performInitialSetup(SharedPreferences prefs) async {
       // 설정된 성경 로드
       await loadMultipleBibles(this.SelectedBibles);
 
-      // 오늘의 계획 로드
-      // if (this._Bible != null && this._Bible!.books.isNotEmpty) {
-      //   this.TodayPlan = getTodayPlan();
-      //   _updateTodayPlan();
-      // }
-      //notifyListeners(); // UI 갱신 보장
     } catch (e) {
       print("Error during selectLoad: $e");
     }
@@ -471,43 +474,6 @@ Future<void> performInitialSetup(SharedPreferences prefs) async {
     if (matchingBook.fullName.isNotEmpty) {
       this.TodayPlan?.fullName = matchingBook.fullName;
     }
-
-//     List<Verse> versesInRange = this._Bible!.books.where((book) =>
-//             book.book == this.TodayPlan?.book &&
-//             (// fChap와 lChap이 같은 장인 경우
-//                 (book.chapter == this.TodayPlan!.fChap! &&
-//                     book.chapter == this.TodayPlan!.lChap! &&
-//                     book.verse >= this.TodayPlan!.fVer! &&
-//                     book.verse <= this.TodayPlan!.lVer!) ||
-//
-//                     // fChap와 lChap이 다른 장인 경우
-//                     (book.chapter > this.TodayPlan!.fChap! &&
-//                         book.chapter < this.TodayPlan!.lChap!) ||
-//
-// // 시작 장인 경우: fVer 이후의 구절만 포함
-//                       (book.chapter == this.TodayPlan!.fChap &&
-//                         book.verse >= this.TodayPlan!.fVer!) && this.TodayPlan!.fChap != this.TodayPlan!.lChap ||
-//
-//                     // 끝 장인 경우: lVer 이전의 구절만 포함
-//                     (book.chapter == this.TodayPlan!.lChap &&
-//                         book.verse <= this.TodayPlan!.lVer!) && this.TodayPlan!.fChap != this.TodayPlan!.lChap
-//             ))
-//         .map((book) => Verse(
-//               id: book.id,
-//               book: book.book,
-//               chapter: book.chapter,
-//               fullName: book.fullName,
-//               verse: book.verse,
-//               btext: book.btext,
-//             ))
-//         .toList();
-//
-//     this.DataSource.clear();
-//     this.DataSource.add(versesInRange);
-//
-//     print(
-//         "DataSource updated with verses for ${this.TodayPlan!.book} ${this.TodayPlan!.fullName} ${this.TodayPlan!.fChap}:${this.TodayPlan!.fVer} - ${this.TodayPlan!.lChap}:${this.TodayPlan!.lVer}");
-//     notifyListeners();
   }
 
   Future<void> _addDataSource() async
@@ -534,6 +500,7 @@ Future<void> performInitialSetup(SharedPreferences prefs) async {
                     book.verse <= this.TodayPlan!.lVer!) && this.TodayPlan!.fChap != this.TodayPlan!.lChap
         ))
         .map((book) => Verse(
+      bibleType: this.bibleType,
       id: book.id,
       book: book.book,
       chapter: book.chapter,
@@ -548,7 +515,7 @@ Future<void> performInitialSetup(SharedPreferences prefs) async {
 
     print(
         "DataSource updated with verses for ${this.TodayPlan!.book} ${this.TodayPlan!.fullName} ${this.TodayPlan!.fChap}:${this.TodayPlan!.fVer} - ${this.TodayPlan!.lChap}:${this.TodayPlan!.lVer}");
-    notifyListeners();
+    //notifyListeners();
   }
 
   int? _getTodayIndex(List<Plan> planList) {

@@ -23,7 +23,7 @@ buildscript {
     }
     ext {
         // 아래 라인을 추가해 최신 버전의 Gradle 플러그인 사용
-        kotlin_version = '1.7.10'
+        kotlin_version = '2.1.0'
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.1.0' // 최신 버전 확인 필요

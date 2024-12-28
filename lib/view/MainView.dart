@@ -5,6 +5,7 @@ import 'package:meal_ver2/model/Verse.dart';
 import 'package:meal_ver2/viewmodel/MainViewModel.dart';
 import 'package:provider/provider.dart';
 import 'package:meal_ver2/view/SelectBibleView.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'OptionView.dart'; // 성경 선택 화면을 import
 
@@ -100,11 +101,6 @@ class _Meal2ViewState extends State<Meal2View> {
                       return Center(child: CircularProgressIndicator());
                     }
 
-                    if (viewModel.DataSource.isEmpty) {
-                      print('UI: No data available.');
-                      return Center(child: Text('No data available'));
-                    }
-
                     print('UI: Displaying data.');
                     return Container(
                       color: Theme.of(context).colorScheme.background,
@@ -174,8 +170,12 @@ class _Meal2ViewState extends State<Meal2View> {
                                                     ),
                                                   ),
                                                   SizedBox(width: MediaQuery.of(context).size.width * 0.01,),
+
                                                   Expanded(
-                                                    child: SelectableText(verse.btext,
+                                                    child: SelectableText(
+                                                      viewModel.DataSource.length > 1 // 성경이 여러 개인 경우 확인
+                                                          ? '${verse.bibleType} ${verse.btext}' // 여러 개일 경우 bibletype 포함
+                                                          : '${verse.btext}', // 하나일 경우 bibletype 없이 btext만 표시
                                                       style: TextStyle(color: isFirstBible? Theme.of(context).textTheme.bodyLarge?.color: Colors.grey,
                                                         fontWeight: FontWeight.normal,
                                                         fontFamily: 'Biblefont',
@@ -231,8 +231,8 @@ class Header extends StatelessWidget {
     final selectedDate = viewModel.SelectedDate;
 
     final displayDate = selectedDate != null
-        ? DateFormat('yy-MM-dd EEEE', 'ko_KR').format(selectedDate)
-        : DateFormat('yy-MM-dd EEEE', 'ko_KR').format(today);
+        ? DateFormat('yy.MM.dd EEEE', 'ko_KR').format(selectedDate)
+        : DateFormat('yy.MM.dd EEEE', 'ko_KR').format(today);
 
     // 오늘의 계획 정보를 가져오기
     final todayPlanDescription = viewModel.TodayPlan != null
@@ -246,6 +246,10 @@ class Header extends StatelessWidget {
         children: [
           SizedBox(width: 20),
           Expanded(
+            child: GestureDetector( // 터치 이벤트를 감지할 수 있도록 GestureDetector로 감싸기
+              onTap: () {
+                onSelectDate(); // 날짜 선택 기능 호출
+              },
             child: Column(
               children: [
                 Text(
@@ -270,19 +274,22 @@ class Header extends StatelessWidget {
               ],
             ),
           ),
+          ),
           SizedBox(width: 10),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // 날짜 선택 버튼
               IconButton(
-                icon: Icon(Icons.calendar_today),
+                icon: Icon(Icons.menu_book_sharp),
                 onPressed: () {
-                  onSelectDate();
-                },
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => SelectBibleView()),
+                    );
+                  },
               ),
+
               IconButton(
-                icon: Icon(Icons.menu), // 메뉴 버튼
+                icon: Icon(Icons.settings), // 메뉴 버튼
                 onPressed: () {
                   Scaffold.of(context).openEndDrawer(); // Drawer 열기
                 },
@@ -309,7 +316,7 @@ class ThemeAndBibleMenu extends StatelessWidget {
           padding: EdgeInsets.zero,
           children: [
             Container(
-              color: Theme.of(context).colorScheme.surface,
+              color: Theme.of(context).textTheme.bodyLarge?.backgroundColor,
               padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
               height: 60, // 원하는 높이 설정
               child: Text(
@@ -341,19 +348,24 @@ class ThemeAndBibleMenu extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: Icon(Icons.menu_book),
+              leading: Icon(Icons.thumb_up),
               title: Text(
-                '성경 선택',
+                '피드백',
                 style: TextStyle(
                   fontFamily: 'Settingfont',
                   color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
                   fontSize: 16,
                 ),
               ),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => SelectBibleView()),
-                );
+              onTap: () async {
+                const url = 'https://docs.google.com/forms/d/e/1FAIpQLScboAaHnboWAq8FJcDYStHRE6ZeqYAmY0AAuatoxeXO1X_WtA/viewform?usp=sharing';
+                if (await canLaunchUrl(Uri.parse(url))) {
+                  await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                } else {
+                  // URL을 열 수 없을 경우 처리
+                  print('Could not launch $url');
+                }
+                Navigator.of(context).pop(); // Drawer 닫기
               },
             ),
             Divider(),
@@ -429,6 +441,15 @@ class ThemeAndBibleMenu extends StatelessWidget {
                           fontSize: 10,
                           color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
                         ),
+                      ),
+                      Text(
+                        'New Americal Standard Bible Copyright ⓒ 1960, 1971, 1995, 2020 by The Lockman Foundation, La Habra, Calif. All rights reserved. For Permission to Quote Information visit www.lockman.org',
+                        style: TextStyle(
+                          fontFamily: 'Mealfont',
+                          fontSize: 10,
+                          color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),

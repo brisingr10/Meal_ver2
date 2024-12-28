@@ -1,4 +1,5 @@
 class Verse {
+  final String bibleType;
   final String book;
   final String btext;
   final String fullName;
@@ -7,6 +8,7 @@ class Verse {
   final int verse;
 
   Verse({
+    required this.bibleType,
     required this.book,
     required this.btext,
     required this.fullName,
@@ -17,6 +19,7 @@ class Verse {
 
   factory Verse.fromJson(Map<String, dynamic> json) {
     return Verse(
+      bibleType: '',
       book: json['book'] ?? 0, // null 처리: 기본값 0
       btext: json['btext'] ?? '', // null 처리: 기본값 빈 문자열
       fullName: json['fullName'] ?? '',
