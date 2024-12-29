@@ -68,29 +68,53 @@ class _SelectBibleViewState extends State<SelectBibleView> {
               body: Column(
                 children: [
                   Expanded(
-                    child: ListView(
+                    child: ReorderableListView(
+                      onReorder: (int oldIndex, int newIndex) {
+                        setState(() {
+                          // 드래그 시 항목을 이동
+                          if (newIndex > oldIndex) newIndex--; // 리스트 이동에 맞게 조정
+                          final String movedBible = selectedOrder.removeAt(oldIndex);
+                          selectedOrder.insert(newIndex, movedBible);
+
+                          // `selectedBibles` 상태도 업데이트
+                          final selectedBiblesKeys = selectedBibles.keys.toList();
+                          final movedKey = selectedBiblesKeys.removeAt(oldIndex);
+                          selectedBiblesKeys.insert(newIndex, movedKey);
+
+                          final newSelectedBibles = <String, bool>{};
+                          for (final key in selectedBiblesKeys) {
+                            newSelectedBibles[key] = selectedBibles[key]!;
+                          }
+                          selectedBibles = newSelectedBibles;
+                        });
+                      },
                       children: selectedBibles.keys.map((String bible) {
                         int orderIndex = selectedOrder.indexOf(bible) + 1;
                         return ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: (selectedBibles[bible] ?? false)
-                                ? Theme.of(context).colorScheme.primary
-                                : Colors.grey[300],
-                            child: Text(
-                              (selectedBibles[bible] ?? false) ? '$orderIndex' : '',
-                              style: TextStyle(
-                                color: (selectedBibles[bible] ?? false) ? Colors.white : Colors.black,
-                              ),
-                            ),
-                          ),
+                          key: ValueKey(bible), // 고유 키 설정
+                          // leading: CircleAvatar(
+                          //   backgroundColor: (selectedBibles[bible] ?? false)
+                          //       ? Theme.of(context).colorScheme.primary
+                          //       : Colors.grey[300],
+                          //   child: Text(
+                          //     (selectedBibles[bible] ?? false) ? '$orderIndex' : '',
+                          //     style: TextStyle(
+                          //       color: (selectedBibles[bible] ?? false) ? Colors.white : Colors.black,
+                          //     ),
+                          //   ),
+                          // ),
                           title: Text(
                             bible,
                             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: themeMode == ThemeMode.dark
-                                  ? Colors.white
-                                  : Colors.black,
+                              color: themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                             ),
                           ),
+                          trailing: selectedBibles[bible] == true
+                              ? Icon(
+                            Icons.check,
+                            color: Theme.of(context).colorScheme.primary,
+                          )
+                              : null, // 선택된 경우 체크 아이콘 표시
                           onTap: () {
                             setState(() {
                               if (selectedBibles[bible] ?? false) {
@@ -106,6 +130,47 @@ class _SelectBibleViewState extends State<SelectBibleView> {
                       }).toList(),
                     ),
                   ),
+                  // Expanded(
+                  //   child: ListView(
+                  //     children: selectedBibles.keys.map((String bible) {
+                  //       int orderIndex = selectedOrder.indexOf(bible) + 1;
+                  //       return
+                  //         ListTile(
+                  //         leading: CircleAvatar(
+                  //           backgroundColor: (selectedBibles[bible] ?? false)
+                  //               ? Theme.of(context).colorScheme.primary
+                  //               : Colors.grey[300],
+                  //           child: Text(
+                  //             (selectedBibles[bible] ?? false) ? '$orderIndex' : '',
+                  //             style: TextStyle(
+                  //               color: (selectedBibles[bible] ?? false) ? Colors.white : Colors.black,
+                  //             ),
+                  //           ),
+                  //         ),
+                  //         title: Text(
+                  //           bible,
+                  //           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  //             color: themeMode == ThemeMode.dark
+                  //                 ? Colors.white
+                  //                 : Colors.black,
+                  //           ),
+                  //         ),
+                  //         onTap: () {
+                  //           setState(() {
+                  //             if (selectedBibles[bible] ?? false) {
+                  //               selectedBibles[bible] = false;
+                  //               selectedOrder.remove(bible);
+                  //             } else {
+                  //               selectedBibles[bible] = true;
+                  //               selectedOrder.add(bible);
+                  //             }
+                  //           });
+                  //         },
+                  //       );
+                  //     }
+                  //     ).toList(),
+                  //   ),
+                  // ),
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: ElevatedButton(
