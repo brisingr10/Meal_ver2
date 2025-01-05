@@ -145,6 +145,9 @@ class _Meal2ViewState extends State<Meal2View> {
                                           if (index < bibleVerses.length) {
                                             Verse verse = bibleVerses[index];
                                             bool isFirstBible = bibleIndex == 0;
+                                            bool isSecondBible = bibleIndex == 1;
+                                            bool isThirdBible = bibleIndex == 2;
+                                            bool isFourthBible = bibleIndex == 3;
 
                                             return GestureDetector(
                                               onLongPress: () {
@@ -174,12 +177,12 @@ class _Meal2ViewState extends State<Meal2View> {
                                                   Expanded(
                                                     child: SelectableText(
                                                       viewModel.DataSource.length > 1 // 성경이 여러 개인 경우 확인
-                                                          ? '${verse.bibleType} ${verse.btext}' // 여러 개일 경우 bibletype 포함
+                                                          ? '${verse.bibleType}${verse.btext}' // 여러 개일 경우 bibletype 포함
                                                           : '${verse.btext}', // 하나일 경우 bibletype 없이 btext만 표시
-                                                      style: TextStyle(color: isFirstBible? Theme.of(context).textTheme.bodyLarge?.color: Colors.grey,
+                                                      style: TextStyle(color: isFirstBible? Theme.of(context).textTheme.bodyLarge?.color: isSecondBible? Colors.blueGrey : isThirdBible? Colors.brown : Colors.deepPurple,
                                                         fontWeight: FontWeight.normal,
                                                         fontFamily: 'Biblefont',
-                                                        fontSize: isFirstBible? viewModel.fontSize: viewModel.fontSize * 0.9,
+                                                        fontSize: viewModel.fontSize,
                                                       ),
                                                     ),
                                                   ),

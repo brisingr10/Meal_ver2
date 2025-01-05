@@ -25,9 +25,9 @@ class CustomThemeData{
   );
   static final ThemeData dark = ThemeData(
     textTheme: textTheme,
-    scaffoldBackgroundColor:  const Color.fromRGBO(31, 31, 31, 1),
+    scaffoldBackgroundColor: const Color.fromRGBO(41, 31, 31, 1),
     appBarTheme: AppBarTheme(
-      backgroundColor: Color.fromRGBO(51, 51, 51, 1),
+       backgroundColor: Color.fromRGBO(51, 51, 51, 1),
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Color.fromRGBO(41, 41, 41, 1),
