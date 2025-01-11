@@ -183,6 +183,7 @@ class _Meal2ViewState extends State<Meal2View> {
                                                         fontWeight: FontWeight.normal,
                                                         fontFamily: 'Biblefont',
                                                         fontSize: viewModel.fontSize,
+                                                        height: 1.7,
                                                       ),
                                                     ),
                                                   ),
