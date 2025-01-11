@@ -138,9 +138,9 @@ Future<void> performInitialSetup(SharedPreferences prefs) async {
   await prefs.setDouble('fontSize', 16.0); // 기본 글꼴 크기
   await prefs.setDouble('lineSpacing', 16.0); // 기본 줄 간격
   await prefs.setString('newRevisedBible', jsonEncode(_newRevisedBible!.toJson()));
-  await prefs.setString('newStandardBible',  jsonEncode(_newRevisedBible!.toJson()));
-  await prefs.setString('commonTransBible',  jsonEncode(_newRevisedBible!.toJson()));
-  await prefs.setString('nasbBible',  jsonEncode(_newRevisedBible!.toJson()));
+  await prefs.setString('newStandardBible',  jsonEncode(_newStandardBible!.toJson()));
+  await prefs.setString('commonTransBible',  jsonEncode(_commonTransBible!.toJson()));
+  await prefs.setString('nasbBible',  jsonEncode(_nasbBible!.toJson()));
 
   await prefs.setBool('isFirstRun', false);
   print('초기 설정 완료');
@@ -332,16 +332,16 @@ Future<void> performInitialSetup(SharedPreferences prefs) async {
     switch (bibleFile) {
       case "개역개정":
         String? revisedJson = prefs.getString('newRevisedBible');
-        return newbible = Bible.fromJson(jsonDecode(revisedJson!));
+        return Bible.fromJson(jsonDecode(revisedJson!));
       case "새번역":
         String? standardJson  = prefs.getString('newStandardBible');
-        return newbible = Bible.fromJson(jsonDecode(standardJson!));
+        return Bible.fromJson(jsonDecode(standardJson!));
       case "공동번역":
         String? commonTransJson   = prefs.getString('commonTransBible');
-        return newbible = Bible.fromJson(jsonDecode(commonTransJson!));
+        return Bible.fromJson(jsonDecode(commonTransJson!));
       case "NASB":
         String? nasbJson   = prefs.getString('nasbBible');
-        return newbible = Bible.fromJson(jsonDecode(nasbJson!));
+        return Bible.fromJson(jsonDecode(nasbJson!));
     }
   }
 
