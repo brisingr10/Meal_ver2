@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 class CustomThemeData{
   static final ThemeData light = ThemeData(
-    textTheme: textTheme,
+    //textTheme: textTheme,
+    textTheme : lightTextTheme,
     appBarTheme: AppBarTheme(
       backgroundColor:  Colors.white,
     ),
@@ -24,7 +25,7 @@ class CustomThemeData{
     ),
   );
   static final ThemeData dark = ThemeData(
-    textTheme: textTheme,
+    textTheme: darkTextTheme,
     scaffoldBackgroundColor: const Color.fromRGBO(41, 31, 31, 1),
     appBarTheme: AppBarTheme(
        backgroundColor: Color.fromRGBO(51, 51, 51, 1),
@@ -47,5 +48,26 @@ class CustomThemeData{
           borderSide: BorderSide(color: Colors.deepOrange, width: 4)),
     ),
   );
-  static final TextTheme textTheme = TextTheme();
+  //static final TextTheme textTheme = TextTheme();
+  static final TextTheme lightTextTheme = TextTheme(
+    bodyLarge: TextStyle(
+      fontSize: 18.0,
+      color:  Colors.black,
+    ),
+    bodyMedium: TextStyle(
+      fontSize: 16.0,
+      color: Colors.black,
+    ),
+  );
+
+  static final TextTheme darkTextTheme = TextTheme(
+    bodyLarge: TextStyle(
+      fontSize: 18.0,
+      color:  Colors.white,
+    ),
+    bodyMedium: TextStyle(
+      fontSize: 16.0,
+      color: Colors.white70,
+    ),
+  );
 }

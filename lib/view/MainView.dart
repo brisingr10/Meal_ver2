@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:meal_ver2/view/SelectBibleView.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../util/CustomTheme.dart';
 import 'OptionView.dart'; // 성경 선택 화면을 import
 
 class Meal2View extends StatefulWidget {
@@ -127,7 +128,7 @@ class _Meal2ViewState extends State<Meal2View> {
                                 }
                               },
                             ),
-                            SizedBox(height: 16.0), // 헤더와 본문 사이에 간격 추가
+                            //SizedBox(height: 16.0), // 헤더와 본문 사이에 간격 추가
                             Expanded(
                               child: RefreshIndicator(
                                 onRefresh: _refreshData,
@@ -163,12 +164,13 @@ class _Meal2ViewState extends State<Meal2View> {
                                                 children: [Opacity(opacity: isFirstBible? 1.0: 0.1,
                                                     child: Container(
                                                       alignment: Alignment.centerRight,
-                                                      width: MediaQuery.of(context).size.width * 0.045,
+                                                      width: MediaQuery.of(context).size.width * 0.05,
+                                                      height: MediaQuery.of(context).size.width * 0.07,
                                                       child: Text('${verse.verse}. ',
                                                         style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color,
                                                           fontFamily: 'Biblefont',
-                                                          fontSize: MediaQuery.of(context).size.width * 0.025,),
-                                                          textAlign: TextAlign.right,
+                                                          fontSize: MediaQuery.of(context).size.width * 0.03,),
+                                                          textAlign: TextAlign.center,
                                                       ),
                                                     ),
                                                   ),
@@ -177,7 +179,7 @@ class _Meal2ViewState extends State<Meal2View> {
                                                   Expanded(
                                                     child: SelectableText(
                                                       viewModel.DataSource.length > 1 // 성경이 여러 개인 경우 확인
-                                                          ? '${verse.bibleType}${verse.btext}' // 여러 개일 경우 bibletype 포함
+                                                          ? '${verse.bibleType} ${verse.btext}' // 여러 개일 경우 bibletype 포함
                                                           : '${verse.btext}', // 하나일 경우 bibletype 없이 btext만 표시
                                                       style: TextStyle(color: isFirstBible? Theme.of(context).textTheme.bodyLarge?.color: isSecondBible? Colors.blueGrey : isThirdBible? Colors.brown : Colors.deepPurple,
                                                         fontWeight: FontWeight.normal,
@@ -235,8 +237,8 @@ class Header extends StatelessWidget {
     final selectedDate = viewModel.SelectedDate;
 
     final displayDate = selectedDate != null
-        ? DateFormat('yy.MM.dd EEEE', 'ko_KR').format(selectedDate)
-        : DateFormat('yy.MM.dd EEEE', 'ko_KR').format(today);
+        ? DateFormat('MM/dd EEEE', 'ko_KR').format(selectedDate)
+        : DateFormat('MM/dd EEEE', 'ko_KR').format(today);
 
     // 오늘의 계획 정보를 가져오기
     final todayPlanDescription = viewModel.TodayPlan != null
@@ -254,17 +256,18 @@ class Header extends StatelessWidget {
               onTap: () {
                 onSelectDate(); // 날짜 선택 기능 호출
               },
-            child: Column(
+            child: Row(
               children: [
                 Text(
                   displayDate,
                   textAlign: TextAlign.left,
                   style: TextStyle(fontFamily: 'Mealfont',fontSize: 16,
                     fontWeight: FontWeight.normal,
-                    color: Theme.of(context).textTheme.bodyLarge?.color ??Colors.black,
+                    color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black38,
+                    //color: Colors.black38,
                   ),
                 ),
-                SizedBox(height: 4), // 날짜와 계획 사이 간격
+                SizedBox(width: 4), // 날짜와 계획 사이 간격
                 Text(
                   todayPlanDescription,
                   textAlign: TextAlign.left,
