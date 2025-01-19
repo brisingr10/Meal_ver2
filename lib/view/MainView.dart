@@ -118,6 +118,7 @@ class _Meal2ViewState extends State<Meal2View> {
                                   initialDate: selectedDate ?? DateTime.now(),
                                   firstDate: DateTime(2020),
                                   lastDate: DateTime(2030),
+                                  initialEntryMode: DatePickerEntryMode.calendarOnly,
                                 );
                                 if (pickedDate != null &&
                                     pickedDate != selectedDate) {
@@ -185,7 +186,7 @@ class _Meal2ViewState extends State<Meal2View> {
                                                         fontWeight: FontWeight.normal,
                                                         fontFamily: 'Biblefont',
                                                         fontSize: viewModel.fontSize,
-                                                        height: 1.8,
+                                                        height: viewModel.lineSpacing,
                                                       ),
                                                     ),
                                                   ),
@@ -197,7 +198,7 @@ class _Meal2ViewState extends State<Meal2View> {
                                           }
                                         }).toList(),
                                         // 절간 간격 추가
-                                        SizedBox(height: viewModel.lineSpacing),
+                                        SizedBox(height: viewModel.verseSpacing),
                                       ],
                                     );
                                   },
@@ -218,7 +219,7 @@ class _Meal2ViewState extends State<Meal2View> {
     );
   }
 }
-//SizedBox(height: viewModel.lineSpacing),
+//SizedBox(height: viewModel.verseSpacing),
 // 절간 간격 적용// 항목 사이 간격
 class Header extends StatelessWidget {
   final DateTime? selectedDate;
@@ -263,8 +264,10 @@ class Header extends StatelessWidget {
                   textAlign: TextAlign.left,
                   style: TextStyle(fontFamily: 'Mealfont',fontSize: 16,
                     fontWeight: FontWeight.normal,
-                    color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black38,
-                    //color: Colors.black38,
+                    //color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black38,
+                    color: Theme.of(context).brightness == Brightness.light
+                        ? Colors.black45 // 라이트 테마일 때 회색
+                        : Colors.white54, // 다크 테마일 때 검은색
                   ),
                 ),
                 SizedBox(width: 4), // 날짜와 계획 사이 간격
@@ -275,7 +278,10 @@ class Header extends StatelessWidget {
                     fontFamily: 'Mealfont',
                     fontSize: 16,
                     fontWeight: FontWeight.normal,
-                    color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
+                    //color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
+                    color: Theme.of(context).brightness == Brightness.light
+                        ? Colors.black45 // 라이트 테마일 때 회색
+                        : Colors.white54, // 다크 테마일 때 검은색
                   ),
                 ),
               ],
@@ -314,6 +320,7 @@ class ThemeAndBibleMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<MainViewModel>(context, listen: true);
+    final List<double> values = [1.0, 1.2, 1.4, 1.6, 1.8, 2.0 , 2.2, 2.4];
 
     return Drawer(
       child: SafeArea(
@@ -354,27 +361,7 @@ class ThemeAndBibleMenu extends StatelessWidget {
                 Navigator.of(context).pop(); // Drawer 닫기
               },
             ),
-            ListTile(
-              leading: Icon(Icons.thumb_up),
-              title: Text(
-                '피드백',
-                style: TextStyle(
-                  fontFamily: 'Settingfont',
-                  color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
-                  fontSize: 16,
-                ),
-              ),
-              onTap: () async {
-                const url = 'https://docs.google.com/forms/d/e/1FAIpQLScboAaHnboWAq8FJcDYStHRE6ZeqYAmY0AAuatoxeXO1X_WtA/viewform?usp=sharing';
-                if (await canLaunchUrl(Uri.parse(url))) {
-                  await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-                } else {
-                  // URL을 열 수 없을 경우 처리
-                  print('Could not launch $url');
-                }
-                Navigator.of(context).pop(); // Drawer 닫기
-              },
-            ),
+
             Divider(),
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -409,10 +396,30 @@ class ThemeAndBibleMenu extends StatelessWidget {
                     ),
                   ),
                   Slider(
-                    value: viewModel.lineSpacing,
+                    value: viewModel.verseSpacing,
                     min: 8.0,
                     max: 32.0,
                     divisions: 12, // 슬라이더 구간 나누기
+                    label: viewModel.verseSpacing.toStringAsFixed(1),
+                    onChanged: (value) {
+                      viewModel.updateVerseSpacing(value);
+                    },
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    '줄간 간격',
+                    style: TextStyle(
+                      fontFamily: 'Settingfont',
+                      fontSize: 14,
+                      color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
+                    ),
+                  ),
+
+                  Slider(
+                    value: viewModel.lineSpacing,
+                    min: 1.0,
+                    max: 3.0,
+                    divisions: values.length - 1, // 슬라이더 구간 나누기
                     label: viewModel.lineSpacing.toStringAsFixed(1),
                     onChanged: (value) {
                       viewModel.updateLineSpacing(value);
@@ -432,6 +439,29 @@ class ThemeAndBibleMenu extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      ListTile(
+                        //leading: Icon(Icons.thumb_up),
+                        title:
+                        Text(
+                          textAlign: TextAlign.center,
+                          'FeedBack',
+                          style: TextStyle(
+                            fontFamily: 'Settingfont',
+                            color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
+                            fontSize: 16,
+                          ),
+                        ),
+                        onTap: () async {
+                          const url = 'https://docs.google.com/forms/d/e/1FAIpQLScboAaHnboWAq8FJcDYStHRE6ZeqYAmY0AAuatoxeXO1X_WtA/viewform?usp=sharing';
+                          if (await canLaunchUrl(Uri.parse(url))) {
+                            await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                          } else {
+                            // URL을 열 수 없을 경우 처리
+                            print('Could not launch $url');
+                          }
+                          Navigator.of(context).pop(); // Drawer 닫기
+                        },
+                      ),
                       Text(
                         'First Create By InPyo Hong',
                         style: TextStyle(

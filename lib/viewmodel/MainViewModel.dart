@@ -28,7 +28,8 @@ class MainViewModel extends ChangeNotifier {
   DateTime? lastViewedDate;
   bool get IsLoading => this._IsLoading;
   double _fontSize = 16.0;
-  double _lineSpacing = 16.0;
+  double _verseSpacing = 16.0;
+  double _lineSpacing = 1.8;
   Bible? _newRevisedBible;
   Bible? _newStandardBible;
   Bible? _commonTransBible;
@@ -37,6 +38,7 @@ class MainViewModel extends ChangeNotifier {
 
 
   double get fontSize => _fontSize;
+  double get verseSpacing => _verseSpacing;
   double get lineSpacing => _lineSpacing;
 
 
@@ -69,19 +71,29 @@ class MainViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> loadSliderSettings() async{
+  void updateVerseSpacing(double spacing) async{
+    _verseSpacing = spacing;
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    _fontSize = prefs.getDouble('fontSize') ?? 16.0; // 기본값 16.0
-    _lineSpacing = prefs.getDouble('lineSpacing') ?? 16.0; // 기본값 16.0
+    await prefs.setDouble('verseSpacing', _verseSpacing); // setDouble 사용
     notifyListeners();
   }
 
   void updateLineSpacing(double spacing) async{
     _lineSpacing = spacing;
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setDouble('lineSpacing', _lineSpacing); // setDouble 사용
+    await prefs.setDouble('lineSpacing', _lineSpacing);
     notifyListeners();
   }
+
+  Future<void> loadSliderSettings() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _fontSize = prefs.getDouble('fontSize') ?? 16.0; // 기본값 16.0
+    _verseSpacing = prefs.getDouble('verseSpacing') ?? 16.0; // 기본값 16.0
+    _lineSpacing = prefs.getDouble('lineSpacing') ?? 1.8; //
+    notifyListeners();
+  }
+
+
   // 선택한 바이블을 SharedPreferences에 저장
   Future<void> saveSelectedBibles() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -136,7 +148,7 @@ Future<void> performInitialSetup(SharedPreferences prefs) async {
   await prefs.setStringList('selectedBibles', ['개역개정']); // 기본 성경 추가
   await prefs.setString('themeMode', 'light'); // 기본 테마 설정
   await prefs.setDouble('fontSize', 16.0); // 기본 글꼴 크기
-  await prefs.setDouble('lineSpacing', 16.0); // 기본 줄 간격
+  await prefs.setDouble('verseSpacing', 16.0); // 기본 줄 간격
   await prefs.setString('newRevisedBible', jsonEncode(_newRevisedBible!.toJson()));
   await prefs.setString('newStandardBible',  jsonEncode(_newStandardBible!.toJson()));
   await prefs.setString('commonTransBible',  jsonEncode(_commonTransBible!.toJson()));
