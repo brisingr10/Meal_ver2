@@ -447,31 +447,18 @@ class ThemeAndBibleMenu extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      ListTile(
-                        //leading: Icon(Icons.thumb_up),
-                        title:
-                        Text(
-                          textAlign: TextAlign.center,
-                          'FeedBack',
-                          style: TextStyle(
-                            fontFamily: 'Settingfont',
-                            color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
-                            fontSize: 16,
-                          ),
-                        ),
-                        onTap: () async {
-                          const url = 'https://docs.google.com/forms/d/e/1FAIpQLScboAaHnboWAq8FJcDYStHRE6ZeqYAmY0AAuatoxeXO1X_WtA/viewform?usp=sharing';
-                          if (await canLaunchUrl(Uri.parse(url))) {
-                            await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-                          } else {
-                            // URL을 열 수 없을 경우 처리
-                            print('Could not launch $url');
-                          }
-                          Navigator.of(context).pop(); // Drawer 닫기
-                        },
-                      ),
+
                       Text(
                         'First Create By InPyo Hong',
+                        style: TextStyle(
+                          fontFamily: 'Mealfont',
+                          fontSize: 10,
+                          color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
+                        ),
+                      ),
+                      SizedBox(height: 4), // 간격 추가
+                      Text(
+                        'Second Create By TMTB',
                         style: TextStyle(
                           fontFamily: 'Mealfont',
                           fontSize: 10,
@@ -495,6 +482,30 @@ class ThemeAndBibleMenu extends StatelessWidget {
                           color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
                         ),
                         textAlign: TextAlign.center,
+                      ),
+                      ListTile(
+                        title:
+                        Text(
+                          textAlign: TextAlign.center,
+                          'FeedBack',
+                          style: TextStyle(
+                            fontFamily: 'Mealfont',
+                            color: Colors.blueAccent, // 라이트 테마일 때 회색// 다크 테마일 때 검은색
+                            fontSize: 10,
+                            decoration: TextDecoration.underline,
+                            decorationColor:Colors.blueAccent,
+                          ),
+                        ),
+                        onTap: () async {
+                          const url = 'https://docs.google.com/forms/d/e/1FAIpQLScboAaHnboWAq8FJcDYStHRE6ZeqYAmY0AAuatoxeXO1X_WtA/viewform?usp=sharing';
+                          if (await canLaunchUrl(Uri.parse(url))) {
+                            await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                          } else {
+                            // URL을 열 수 없을 경우 처리
+                            print('Could not launch $url');
+                          }
+                          Navigator.of(context).pop(); // Drawer 닫기
+                        },
                       ),
                     ],
                   ),
