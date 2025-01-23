@@ -48,63 +48,8 @@ class _SelectBibleViewState extends State<SelectBibleView> {
 
     // updatedSelectedBibles를 selectedBibles로 교체
     selectedBibles = updatedSelectedBibles;
-
-    // selectedOrder도 viewModel.SelectedBibles의 순서로 초기화
-    //selectedOrder = viewModel.SelectedBibles.where((bible) => selectedBibles[bible] == true).toList();
   }
 
-  // void _addBible() {
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) {
-  //       List<String> availableBibles = selectedBibles.entries
-  //           .where((entry) => entry.value == false) // value가 true인 항목만 필터링
-  //           .map((entry) => entry.key)            // key만 추출
-  //           .toList();
-  //       return AlertDialog(
-  //         title: Text("추가할 성경 선택"),
-  //         content:SizedBox(
-  //       width: 400,  // 너비 제한 추가
-  //         child : ConstrainedBox(
-  //           constraints: BoxConstraints(
-  //             maxHeight: 300, // 최대 높이 제한
-  //             minWidth: 300,  // 최소 너비 제한
-  //             maxWidth: 400,  // 최대 너비 제한 추가
-  //           ),
-  //
-  //         child: availableBibles.isNotEmpty
-  //             ? ListView.builder(
-  //           shrinkWrap: true,
-  //           itemCount: availableBibles.length,
-  //           itemBuilder: (context, index) {
-  //             String bible = availableBibles[index];
-  //             return ListTile(
-  //               title: Text(bible),
-  //               onTap: () {
-  //                 setState(() {
-  //                   selectedBibles[bible] = true;
-  //                   selectedOrder.add(bible);
-  //                 });
-  //                 Navigator.pop(context);
-  //               },
-  //             );
-  //           },
-  //         )
-  //             : Text("추가 가능한 성경이 없습니다."),
-  //       ),
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.pop(context);
-  //             },
-  //             child: Text("닫기"),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -113,7 +58,6 @@ class _SelectBibleViewState extends State<SelectBibleView> {
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: MainViewModel.themeMode,
       builder: (context, themeMode, child) {
-        bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
         return MaterialApp(
             themeMode: themeMode,
             theme: ThemeData.light(),

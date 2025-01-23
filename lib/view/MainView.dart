@@ -21,6 +21,8 @@ class _Meal2ViewState extends State<Meal2View> {
   DateTime? selectedDate;
   late MainViewModel viewModel;
 
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -65,10 +67,16 @@ class _Meal2ViewState extends State<Meal2View> {
         : currentDate.subtract(Duration(days: 1));
 
     viewModel.setSelectedDate(newDate);
+    _scrollController.animateTo(
+      0.0,
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
   }
 
   @override
   void dispose() {
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -134,7 +142,7 @@ class _Meal2ViewState extends State<Meal2View> {
                               child: RefreshIndicator(
                                 onRefresh: _refreshData,
                                 child: ListView.builder(
-                                  controller: ScrollController(),
+                                  controller: _scrollController,
                                   itemCount: viewModel.DataSource[0].length,
                                   itemBuilder: (context, index) {
                                     return Column(
