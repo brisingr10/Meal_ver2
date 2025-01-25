@@ -67,6 +67,7 @@ class _SelectBibleViewState extends State<SelectBibleView> {
             title: Text(
               "성경 버전",
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontFamily: 'Settingfont',
                 color: themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                   ),
             ),
@@ -81,6 +82,7 @@ class _SelectBibleViewState extends State<SelectBibleView> {
               child: Text(
                 '확인',
                 style: TextStyle(
+                  fontFamily: 'Settingfont',
                   fontSize: 16, // 글자 크기
                   color: selectedOrder.isNotEmpty
                       ? (themeMode == ThemeMode.dark ? Colors.white : Colors.black)
@@ -150,6 +152,7 @@ class _SelectBibleViewState extends State<SelectBibleView> {
                           title: Text(
                             bible,
                             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              fontFamily: 'Settingfont',
                               color: isChecked
                                   ? (themeMode == ThemeMode.dark ? Colors.white : Colors.black)
                                   : Colors.grey, // 체크되지 않은 항목은 흐리게 표시
