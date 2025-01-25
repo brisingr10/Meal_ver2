@@ -472,8 +472,8 @@
 				CURRENT_PROJECT_VERSION = 1.0.17;
 				DEVELOPMENT_TEAM = SUCD9MP5W9;
 				ENABLE_BITCODE = NO;
-				FLUTTER_BUILD_NAME = 1.0.17;
-				FLUTTER_BUILD_NUMBER = 5;
+				FLUTTER_BUILD_NAME = 2.0.0;
+				FLUTTER_BUILD_NUMBER = 1;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "끼니";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
@@ -661,8 +661,8 @@
 				CURRENT_PROJECT_VERSION = 1.0.17;
 				DEVELOPMENT_TEAM = SUCD9MP5W9;
 				ENABLE_BITCODE = NO;
-				FLUTTER_BUILD_NAME = 1.0.17;
-				FLUTTER_BUILD_NUMBER = 5;
+				FLUTTER_BUILD_NAME = 2.0.0;
+				FLUTTER_BUILD_NUMBER = 1;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "끼니";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
@@ -690,8 +690,8 @@
 				CURRENT_PROJECT_VERSION = 1.0.17;
 				DEVELOPMENT_TEAM = SUCD9MP5W9;
 				ENABLE_BITCODE = NO;
-				FLUTTER_BUILD_NAME = 1.0.17;
-				FLUTTER_BUILD_NUMBER = 5;
+				FLUTTER_BUILD_NAME = 2.0.0;
+				FLUTTER_BUILD_NUMBER = 1;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "끼니";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
