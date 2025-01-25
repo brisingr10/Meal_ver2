@@ -178,7 +178,8 @@ class _Meal2ViewState extends State<Meal2View> {
                                                       child: Text('${verse.verse}. ',
                                                         style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color,
                                                           fontFamily: 'Biblefont',
-                                                          fontSize: MediaQuery.of(context).size.width * 0.05,),
+                                                          fontWeight: FontWeight.bold,
+                                                          fontSize: MediaQuery.of(context).size.width * 0.035,),
                                                           textAlign: TextAlign.center,
                                                       ),
                                                     ),
@@ -246,8 +247,8 @@ class Header extends StatelessWidget {
     final selectedDate = viewModel.SelectedDate;
 
     final displayDate = selectedDate != null
-        ? DateFormat('MM/dd(EEEE)', 'ko_KR').format(selectedDate)
-        : DateFormat('MM/dd(EEEE)', 'ko_KR').format(today);
+        ? DateFormat('MM/dd(E)', 'ko_KR').format(selectedDate)
+        : DateFormat('MM/dd(E)', 'ko_KR').format(today);
 
     // 오늘의 계획 정보를 가져오기
     final todayPlanDescription = viewModel.TodayPlan != null
@@ -255,17 +256,18 @@ class Header extends StatelessWidget {
         : '오늘의 계획이 없습니다';
 
     return Container(
-      padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
+      padding: EdgeInsets.symmetric(vertical: 0.1, horizontal: 5),
       color: Colors.transparent,
       child: Row(
         children: [
-          SizedBox(width: 20),
+          SizedBox(width: 10),
           Expanded(
             child: GestureDetector( // 터치 이벤트를 감지할 수 있도록 GestureDetector로 감싸기
               onTap: () {
                 onSelectDate(); // 날짜 선택 기능 호출
               },
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end, // Row 내에서 하단 정렬
               children: [
 
                     Text(
@@ -273,7 +275,7 @@ class Header extends StatelessWidget {
                       textAlign: TextAlign.left,
                       style: TextStyle(
                         fontFamily: 'Mealfont',
-                        fontSize: 20,
+                        fontSize: 17,
                         fontWeight: FontWeight.bold,
                         //color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
                         color: Theme.of(context).brightness == Brightness.light
@@ -282,10 +284,14 @@ class Header extends StatelessWidget {
                       ),
                     ),
                 SizedBox(width: 8), // 날짜와 계획 사이 간격
+                Container(
+                  //width: double.infinity,
+                  alignment: Alignment.bottomLeft,
+                  child:
                     Text(
                       displayDate,
                       textAlign: TextAlign.left,
-                      style: TextStyle(fontFamily: 'Mealfont',fontSize: 16,
+                      style: TextStyle(fontFamily: 'Mealfont',fontSize: 13,
                         fontWeight: FontWeight.normal,
                         //color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black38,
                         color: Theme.of(context).brightness == Brightness.light
@@ -293,6 +299,7 @@ class Header extends StatelessWidget {
                             : Colors.white54, // 다크 테마일 때 검은색
                       ),
                     ),
+                ),
                   ],
             ),
           ),
