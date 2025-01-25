@@ -178,7 +178,7 @@ class _Meal2ViewState extends State<Meal2View> {
                                                       child: Text('${verse.verse}. ',
                                                         style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color,
                                                           fontFamily: 'Biblefont',
-                                                          fontSize: MediaQuery.of(context).size.width * 0.03,),
+                                                          fontSize: MediaQuery.of(context).size.width * 0.05,),
                                                           textAlign: TextAlign.center,
                                                       ),
                                                     ),
@@ -246,8 +246,8 @@ class Header extends StatelessWidget {
     final selectedDate = viewModel.SelectedDate;
 
     final displayDate = selectedDate != null
-        ? DateFormat('MM/dd EEEE', 'ko_KR').format(selectedDate)
-        : DateFormat('MM/dd EEEE', 'ko_KR').format(today);
+        ? DateFormat('MM/dd(EEEE)', 'ko_KR').format(selectedDate)
+        : DateFormat('MM/dd(EEEE)', 'ko_KR').format(today);
 
     // 오늘의 계획 정보를 가져오기
     final todayPlanDescription = viewModel.TodayPlan != null
@@ -267,32 +267,33 @@ class Header extends StatelessWidget {
               },
             child: Row(
               children: [
-                Text(
-                  displayDate,
-                  textAlign: TextAlign.left,
-                  style: TextStyle(fontFamily: 'Mealfont',fontSize: 16,
-                    fontWeight: FontWeight.normal,
-                    //color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black38,
-                    color: Theme.of(context).brightness == Brightness.light
-                        ? Colors.black45 // 라이트 테마일 때 회색
-                        : Colors.white54, // 다크 테마일 때 검은색
-                  ),
-                ),
-                SizedBox(width: 4), // 날짜와 계획 사이 간격
-                Text(
-                  todayPlanDescription,
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    fontFamily: 'Mealfont',
-                    fontSize: 16,
-                    fontWeight: FontWeight.normal,
-                    //color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
-                    color: Theme.of(context).brightness == Brightness.light
-                        ? Colors.black45 // 라이트 테마일 때 회색
-                        : Colors.white54, // 다크 테마일 때 검은색
-                  ),
-                ),
-              ],
+
+                    Text(
+                      todayPlanDescription,
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontFamily: 'Mealfont',
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        //color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
+                        color: Theme.of(context).brightness == Brightness.light
+                            ? Colors.black // 라이트 테마일 때 회색
+                            : Colors.white, // 다크 테마일 때 검은색
+                      ),
+                    ),
+                SizedBox(width: 8), // 날짜와 계획 사이 간격
+                    Text(
+                      displayDate,
+                      textAlign: TextAlign.left,
+                      style: TextStyle(fontFamily: 'Mealfont',fontSize: 16,
+                        fontWeight: FontWeight.normal,
+                        //color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black38,
+                        color: Theme.of(context).brightness == Brightness.light
+                            ? Colors.black45 // 라이트 테마일 때 회색
+                            : Colors.white54, // 다크 테마일 때 검은색
+                      ),
+                    ),
+                  ],
             ),
           ),
           ),
@@ -449,7 +450,7 @@ class ThemeAndBibleMenu extends StatelessWidget {
                     children: [
 
                       Text(
-                        'First Create By InPyo Hong',
+                        'Originally created by InPyo Hong',
                         style: TextStyle(
                           fontFamily: 'Mealfont',
                           fontSize: 10,
@@ -458,7 +459,7 @@ class ThemeAndBibleMenu extends StatelessWidget {
                       ),
                       SizedBox(height: 4), // 간격 추가
                       Text(
-                        'Second Create By TMTB',
+                        'Futher developed by TMTB',
                         style: TextStyle(
                           fontFamily: 'Mealfont',
                           fontSize: 10,
