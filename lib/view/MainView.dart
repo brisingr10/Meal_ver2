@@ -283,7 +283,7 @@ class Header extends StatelessWidget {
                             : Colors.white, // 다크 테마일 때 검은색
                       ),
                     ),
-                SizedBox(width: 8), // 날짜와 계획 사이 간격
+                SizedBox(width: 20), // 날짜와 계획 사이 간격
                 Container(
                   //width: double.infinity,
                   alignment: Alignment.bottomLeft,
