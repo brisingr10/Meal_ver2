@@ -51,6 +51,7 @@ class MyApp extends StatelessWidget {
           valueListenable: MainViewModel.themeMode,
           builder: (context, themeMode, child) {
             return MaterialApp(
+
               darkTheme: CustomThemeData.dark,
               theme: CustomThemeData.light,
               themeMode: themeMode,
@@ -65,6 +66,12 @@ class MyApp extends StatelessWidget {
                 GlobalCupertinoLocalizations.delegate,
               ],
               home: Meal2View(),
+              builder: (context, child) => MediaQuery(
+                data: MediaQuery.of(context).copyWith(
+                  textScaleFactor: 1.0,
+                ),
+                child: child!,
+              ),
               //home: OptionView(),
             );
           });
