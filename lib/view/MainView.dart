@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:meal_ver2/model/Verse.dart';
+import 'package:meal_ver2/model/Note.dart';
 import 'package:meal_ver2/viewmodel/MainViewModel.dart';
 import 'package:provider/provider.dart';
 import 'package:meal_ver2/view/SelectBibleView.dart';
+import 'package:meal_ver2/view/NoteEditorView.dart';
+import 'package:meal_ver2/view/NotesListView.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../util/CustomTheme.dart';
@@ -20,6 +23,11 @@ class _Meal2ViewState extends State<Meal2View> {
   String errorMessage = '';
   DateTime? selectedDate;
   late MainViewModel viewModel;
+  
+  // Selection mode variables
+  bool isSelectionMode = false;
+  Set<String> selectedVerseIds = {};
+  List<VerseReference> selectedVerses = [];
 
   final ScrollController _scrollController = ScrollController();
 
@@ -66,12 +74,69 @@ class _Meal2ViewState extends State<Meal2View> {
         ? currentDate.add(Duration(days: 1))
         : currentDate.subtract(Duration(days: 1));
 
+    // Exit selection mode when changing date
+    if (isSelectionMode) {
+      _exitSelectionMode();
+    }
+    
     viewModel.setSelectedDate(newDate);
     _scrollController.animateTo(
       0.0,
       duration: Duration(milliseconds: 300),
       curve: Curves.easeOut,
     );
+  }
+  
+  void _enterSelectionMode() {
+    setState(() {
+      isSelectionMode = true;
+      selectedVerseIds.clear();
+      selectedVerses.clear();
+    });
+  }
+  
+  void _exitSelectionMode() {
+    setState(() {
+      isSelectionMode = false;
+      selectedVerseIds.clear();
+      selectedVerses.clear();
+    });
+  }
+  
+  void _toggleVerseSelection(Verse verse, String bibleType) {
+    final verseRef = VerseReference.fromVerse(verse, bibleType);
+    final verseId = verseRef.verseId;
+    
+    setState(() {
+      if (selectedVerseIds.contains(verseId)) {
+        selectedVerseIds.remove(verseId);
+        selectedVerses.removeWhere((v) => v.verseId == verseId);
+      } else {
+        selectedVerseIds.add(verseId);
+        selectedVerses.add(verseRef);
+      }
+    });
+  }
+  
+  void _createNoteFromSelection() async {
+    if (selectedVerses.isEmpty) return;
+    
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => NoteEditorView(
+          selectedVerses: selectedVerses,
+          date: viewModel.SelectedDate ?? DateTime.now(),
+        ),
+      ),
+    );
+    
+    if (result == true) {
+      // Note was created successfully
+      _exitSelectionMode();
+      // Refresh to show note indicators
+      setState(() {});
+    }
   }
 
   @override
@@ -83,14 +148,24 @@ class _Meal2ViewState extends State<Meal2View> {
   @override
   Widget build(BuildContext context) {
     print('Building Meal2View...');
-    return GestureDetector(
-      onHorizontalDragEnd: (details) {
-        if (details.primaryVelocity! < 0) {
-          _changeDate(context, true);
-        } else if (details.primaryVelocity! > 0) {
-          _changeDate(context, false);
+    return WillPopScope(
+      onWillPop: () async {
+        if (isSelectionMode) {
+          _exitSelectionMode();
+          return false;
         }
+        return true;
       },
+      child: GestureDetector(
+        onHorizontalDragEnd: (details) {
+          if (!isSelectionMode) {
+            if (details.primaryVelocity! < 0) {
+              _changeDate(context, true);
+            } else if (details.primaryVelocity! > 0) {
+              _changeDate(context, false);
+            }
+          }
+        },
       child: ValueListenableBuilder<ThemeMode>(
         valueListenable: MainViewModel.themeMode,
         builder: (context, themeMode, child) {
@@ -120,6 +195,9 @@ class _Meal2ViewState extends State<Meal2View> {
                           children: [
                             Header(
                               selectedDate: selectedDate,
+                              isSelectionMode: isSelectionMode,
+                              selectedCount: selectedVerseIds.length,
+                              onExitSelectionMode: _exitSelectionMode,
                               onSelectDate: () async {
                                 final DateTime? pickedDate = await showDatePicker(
                                   context: context,
@@ -159,18 +237,38 @@ class _Meal2ViewState extends State<Meal2View> {
                                             bool isThirdBible = bibleIndex == 2;
                                             bool isFourthBible = bibleIndex == 3;
 
+                                            final bibleType = viewModel.SelectedBibles.isNotEmpty && bibleIndex < viewModel.SelectedBibles.length
+                                                ? viewModel.SelectedBibles[bibleIndex]
+                                                : '';
+                                            final verseRef = VerseReference.fromVerse(verse, bibleType);
+                                            final isSelected = selectedVerseIds.contains(verseRef.verseId);
+                                            final hasNote = viewModel.hasNoteForVerse(viewModel.SelectedDate ?? DateTime.now(), verseRef);
+                                            
                                             return GestureDetector(
                                               onLongPress: () {
-                                                final textToCopy = '${verse
-                                                    .verse}. ${verse.btext}';
-                                                Clipboard.setData(ClipboardData(text: textToCopy));
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  SnackBar(content: Text('구절이 복사되었습니다: $textToCopy')),
-                                                );
+                                                if (!isSelectionMode) {
+                                                  _enterSelectionMode();
+                                                  _toggleVerseSelection(verse, bibleType);
+                                                }
                                               },
-                                              child: Row(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [Opacity(opacity: isFirstBible? 1.0: 0.1,
+                                              onTap: () {
+                                                if (isSelectionMode) {
+                                                  _toggleVerseSelection(verse, bibleType);
+                                                }
+                                              },
+                                              child: Container(
+                                                color: isSelected ? Theme.of(context).primaryColor.withOpacity(0.1) : Colors.transparent,
+                                                child: Row(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    if (isSelectionMode)
+                                                      Checkbox(
+                                                        value: isSelected,
+                                                        onChanged: (bool? value) {
+                                                          _toggleVerseSelection(verse, bibleType);
+                                                        },
+                                                      ),
+                                                    Opacity(opacity: isFirstBible? 1.0: 0.1,
                                                     child: Container(
                                                       alignment: Alignment.centerRight,
                                                       width: MediaQuery.of(context).size.width * 0.05,
@@ -186,20 +284,36 @@ class _Meal2ViewState extends State<Meal2View> {
                                                   ),
                                                   SizedBox(width: MediaQuery.of(context).size.width * 0.01,),
 
-                                                  Expanded(
-                                                    child: SelectableText(
-                                                      viewModel.DataSource.length > 1 // 성경이 여러 개인 경우 확인
-                                                          ? '${verse.bibleType} ${verse.btext}' // 여러 개일 경우 bibletype 포함
-                                                          : '${verse.btext}', // 하나일 경우 bibletype 없이 btext만 표시
-                                                      style: TextStyle(color: isFirstBible? Theme.of(context).textTheme.bodyLarge?.color: isSecondBible? Colors.blueGrey : isThirdBible? Colors.brown : Colors.deepPurple,
-                                                        fontWeight: FontWeight.normal,
-                                                        fontFamily: 'Biblefont',
-                                                        fontSize: viewModel.fontSize,
-                                                        height: viewModel.lineSpacing,
+                                                    Expanded(
+                                                      child: Row(
+                                                        children: [
+                                                          Expanded(
+                                                            child: SelectableText(
+                                                              viewModel.DataSource.length > 1 // 성경이 여러 개인 경우 확인
+                                                                  ? '${verse.bibleType} ${verse.btext}' // 여러 개일 경우 bibletype 포함
+                                                                  : '${verse.btext}', // 하나일 경우 bibletype 없이 btext만 표시
+                                                              style: TextStyle(color: isFirstBible? Theme.of(context).textTheme.bodyLarge?.color: isSecondBible? Colors.blueGrey : isThirdBible? Colors.brown : Colors.deepPurple,
+                                                                fontWeight: FontWeight.normal,
+                                                                fontFamily: 'Biblefont',
+                                                                fontSize: viewModel.fontSize,
+                                                                height: viewModel.lineSpacing,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          if (hasNote && !isSelectionMode)
+                                                            Padding(
+                                                              padding: EdgeInsets.only(left: 4),
+                                                              child: Icon(
+                                                                Icons.note,
+                                                                size: 16,
+                                                                color: Theme.of(context).primaryColor,
+                                                              ),
+                                                            ),
+                                                        ],
                                                       ),
                                                     ),
-                                                  ),
-                                                ],
+                                                  ],
+                                                ),
                                               ),
                                             );
                                           } else {
@@ -221,9 +335,19 @@ class _Meal2ViewState extends State<Meal2View> {
                   },
                 ),
               ),
+              floatingActionButton: isSelectionMode && selectedVerseIds.isNotEmpty
+                  ? FloatingActionButton.extended(
+                      onPressed: _createNoteFromSelection,
+                      label: Text('노트 만들기'),
+                      icon: Icon(Icons.note_add),
+                      backgroundColor: Theme.of(context).primaryColor,
+                    )
+                  : null,
+              floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
             ),
           );
         },
+        ),
       ),
     );
   }
@@ -233,8 +357,17 @@ class _Meal2ViewState extends State<Meal2View> {
 class Header extends StatelessWidget {
   final DateTime? selectedDate;
   final VoidCallback onSelectDate;
+  final bool isSelectionMode;
+  final int selectedCount;
+  final VoidCallback? onExitSelectionMode;
 
-  Header({this.selectedDate, required this.onSelectDate});
+  Header({
+    this.selectedDate, 
+    required this.onSelectDate,
+    this.isSelectionMode = false,
+    this.selectedCount = 0,
+    this.onExitSelectionMode,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -260,12 +393,34 @@ class Header extends StatelessWidget {
       color: Colors.transparent,
       child: Row(
         children: [
-          SizedBox(width: 10),
+          if (isSelectionMode)
+            IconButton(
+              icon: Icon(Icons.close),
+              onPressed: onExitSelectionMode,
+            )
+          else
+            SizedBox(width: 10),
           Expanded(
-            child: GestureDetector( // 터치 이벤트를 감지할 수 있도록 GestureDetector로 감싸기
-              onTap: () {
-                onSelectDate(); // 날짜 선택 기능 호출
-              },
+            child: isSelectionMode
+              ? Container(
+                  alignment: Alignment.centerLeft,
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Text(
+                    '${selectedCount}개 선택됨',
+                    style: TextStyle(
+                      fontFamily: 'Mealfont',
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? Colors.black
+                          : Colors.white,
+                    ),
+                  ),
+                )
+              : GestureDetector( // 터치 이벤트를 감지할 수 있도록 GestureDetector로 감싸기
+                  onTap: () {
+                    onSelectDate(); // 날짜 선택 기능 호출
+                  },
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end, // Row 내에서 하단 정렬
               children: [
@@ -301,30 +456,43 @@ class Header extends StatelessWidget {
                     ),
                 ),
                   ],
-            ),
+                ),
+              ),
           ),
-          ),
-          SizedBox(width: 10),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                icon: Icon(Icons.menu_book_sharp),
-                onPressed: () {
+          if (!isSelectionMode) ...[  
+            SizedBox(width: 10),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.notes),
+                  onPressed: () {
                     Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => SelectBibleView()),
+                      MaterialPageRoute(
+                        builder: (context) => NotesListView(
+                          date: viewModel.SelectedDate ?? DateTime.now(),
+                        ),
+                      ),
                     );
                   },
-              ),
-
-              IconButton(
-                icon: Icon(Icons.settings), // 메뉴 버튼
-                onPressed: () {
-                  Scaffold.of(context).openEndDrawer(); // Drawer 열기
-                },
-              ),
-            ],
-          ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.menu_book_sharp),
+                  onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => SelectBibleView()),
+                      );
+                    },
+                ),
+                IconButton(
+                  icon: Icon(Icons.settings), // 메뉴 버튼
+                  onPressed: () {
+                    Scaffold.of(context).openEndDrawer(); // Drawer 열기
+                  },
+                ),
+              ],
+            ),
+          ],
         ],
 
       ),

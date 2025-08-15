@@ -8,7 +8,8 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import '../model/PlanData.dart';
 import '../model/bible.dart';
-import '../util/Globals.Dart';
+import '../model/Note.dart';
+import '../util/Globals.dart';
 import '../network/plan.dart';
 import '../model/Verse.dart';
 
@@ -35,7 +36,9 @@ class MainViewModel extends ChangeNotifier {
   Bible? _commonTransBible;
   Bible? _nasbBible;
   String bibleType = '';
-
+  
+  // Notes management
+  Map<String, List<Note>> _notesByDate = {}; // Key: "yyyy-MM-dd"
 
   double get fontSize => _fontSize;
   double get verseSpacing => _verseSpacing;
@@ -60,6 +63,7 @@ class MainViewModel extends ChangeNotifier {
     await loadSliderSettings();
     await loadPreferences();
     await _loadSelectedBibles();
+    await loadNotes();
     await selectLoad();
     notifyListeners();
   }
@@ -537,5 +541,109 @@ Future<void> performInitialSetup(SharedPreferences prefs) async {
         : DateTime.now();
     return planList.indexWhere((plan) =>
         DateTime.parse(plan.day!).difference(selectedOrToday).inDays == 0);
+  }
+  
+  // ==================== Notes Management Methods ====================
+  
+  // Load notes from SharedPreferences
+  Future<void> loadNotes() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final notesJson = prefs.getString('userNotes');
+      
+      if (notesJson != null) {
+        final Map<String, dynamic> decoded = json.decode(notesJson);
+        _notesByDate = decoded.map((key, value) {
+          final notesList = (value as List).map((noteJson) => Note.fromJson(noteJson)).toList();
+          return MapEntry(key, notesList);
+        });
+      }
+    } catch (e) {
+      print('Error loading notes: $e');
+      _notesByDate = {};
+    }
+    notifyListeners();
+  }
+  
+  // Save notes to SharedPreferences
+  Future<void> _saveNotes() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final notesMap = _notesByDate.map((key, value) {
+        return MapEntry(key, value.map((note) => note.toJson()).toList());
+      });
+      final notesJson = json.encode(notesMap);
+      await prefs.setString('userNotes', notesJson);
+    } catch (e) {
+      print('Error saving notes: $e');
+    }
+  }
+  
+  // Add a new note
+  void addNote(Note note) {
+    final dateKey = note.dateKey;
+    if (!_notesByDate.containsKey(dateKey)) {
+      _notesByDate[dateKey] = [];
+    }
+    _notesByDate[dateKey]!.add(note);
+    _saveNotes();
+    notifyListeners();
+  }
+  
+  // Update an existing note
+  void updateNote(Note updatedNote) {
+    final dateKey = updatedNote.dateKey;
+    if (_notesByDate.containsKey(dateKey)) {
+      final index = _notesByDate[dateKey]!.indexWhere((note) => note.id == updatedNote.id);
+      if (index != -1) {
+        _notesByDate[dateKey]![index] = updatedNote;
+        _saveNotes();
+        notifyListeners();
+      }
+    }
+  }
+  
+  // Delete a note
+  void deleteNote(String noteId) {
+    _notesByDate.forEach((dateKey, notes) {
+      notes.removeWhere((note) => note.id == noteId);
+    });
+    // Remove empty date entries
+    _notesByDate.removeWhere((key, value) => value.isEmpty);
+    _saveNotes();
+    notifyListeners();
+  }
+  
+  // Get notes for a specific date
+  List<Note> getNotesForDate(DateTime date) {
+    final dateKey = DateFormat('yyyy-MM-dd').format(date);
+    return _notesByDate[dateKey] ?? [];
+  }
+  
+  // Check if a verse has notes
+  bool hasNoteForVerse(DateTime date, VerseReference verseRef) {
+    final notes = getNotesForDate(date);
+    for (final note in notes) {
+      for (final verse in note.selectedVerses) {
+        if (verse.verseId == verseRef.verseId) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  
+  // Get all notes for a specific verse
+  List<Note> getNotesForVerse(DateTime date, VerseReference verseRef) {
+    final notes = getNotesForDate(date);
+    return notes.where((note) {
+      return note.selectedVerses.any((verse) => verse.verseId == verseRef.verseId);
+    }).toList();
+  }
+  
+  // Get total notes count for a date
+  int getNotesCountForDate(DateTime date) {
+    final dateKey = DateFormat('yyyy-MM-dd').format(date);
+    return _notesByDate[dateKey]?.length ?? 0;
   }
 }

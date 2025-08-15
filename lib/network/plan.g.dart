@@ -19,7 +19,7 @@ Plan _$PlanFromJson(Map<String, dynamic> json) => Plan(
 Map<String, dynamic> _$PlanToJson(Plan instance) => <String, dynamic>{
       'day': instance.day,
       'book': instance.book,
-      'fullName' : instance.fullName,
+      'fullName': instance.fullName,
       'fChap': instance.fChap,
       'fVer': instance.fVer,
       'lChap': instance.lChap,
