@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -563,7 +564,7 @@ class Header extends StatelessWidget {
                       textAlign: TextAlign.left,
                       style: TextStyle(
                         fontFamily: 'Mealfont',
-                        fontSize: 17,
+                        fontSize: kIsWeb ? 12 : 17,
                         fontWeight: FontWeight.bold,
                         //color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
                         color: Theme.of(context).brightness == Brightness.light
@@ -571,7 +572,7 @@ class Header extends StatelessWidget {
                             : Colors.white, // 다크 테마일 때 검은색
                       ),
                     ),
-                SizedBox(width: 20), // 날짜와 계획 사이 간격
+                SizedBox(width: kIsWeb ? 10 : 20), // 날짜와 계획 사이 간격
                 Container(
                   //width: double.infinity,
                   alignment: Alignment.bottomLeft,
@@ -579,7 +580,7 @@ class Header extends StatelessWidget {
                     Text(
                       displayDate,
                       textAlign: TextAlign.left,
-                      style: TextStyle(fontFamily: 'Mealfont',fontSize: 13,
+                      style: TextStyle(fontFamily: 'Mealfont', fontSize: kIsWeb ? 9 : 13,
                         fontWeight: FontWeight.normal,
                         //color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black38,
                         color: Theme.of(context).brightness == Brightness.light
@@ -608,7 +609,7 @@ class Header extends StatelessWidget {
                   },
                 ),
                 IconButton(
-                  icon: Icon(Icons.menu_book_sharp),
+                  icon: Icon(Icons.article),
                   onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(builder: (context) => SelectBibleView()),

@@ -1,1 +1,39 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"meal-ver2","appId":"1:380708037345:android:037ebaa918f7ae7a5e4da0","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"meal-ver2","configurations":{"android":"1:380708037345:android:037ebaa918f7ae7a5e4da0","ios":"1:380708037345:ios:900488d7c88185ac5e4da0","macos":"1:380708037345:ios:43b3a8d5525df2355e4da0","web":"1:380708037345:web:1f296c04574466df5e4da0","windows":"1:380708037345:web:6aa8b58a0f667e255e4da0"}}}}}}
+{
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "meal-ver2",
+          "appId": "1:380708037345:android:037ebaa918f7ae7a5e4da0",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "meal-ver2",
+          "configurations": {
+            "android": "1:380708037345:android:037ebaa918f7ae7a5e4da0",
+            "ios": "1:380708037345:ios:900488d7c88185ac5e4da0",
+            "macos": "1:380708037345:ios:43b3a8d5525df2355e4da0",
+            "web": "1:380708037345:web:1f296c04574466df5e4da0",
+            "windows": "1:380708037345:web:6aa8b58a0f667e255e4da0"
+          }
+        }
+      }
+    }
+  }
+}

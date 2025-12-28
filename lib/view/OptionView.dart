@@ -117,7 +117,7 @@ class TransparentWindow extends StatelessWidget {
                       ),
                       // 성경 선택 버튼
                       IconButton(
-                        icon: Icon(Icons.menu_book),
+                        icon: Icon(Icons.article),
                         onPressed: () {
                           Navigator.push(
                             context,

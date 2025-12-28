@@ -386,6 +386,9 @@ class _MobileMeal2ViewState extends State<MobileMeal2View> {
     required String label,
     required VoidCallback onPressed,
   }) {
+    final isDark = MainViewModel.themeMode.value == ThemeMode.dark;
+    final buttonColor = isDark ? Colors.white : Colors.deepPurple;
+
     return Expanded(
       child: InkWell(
         onTap: onPressed,
@@ -394,13 +397,13 @@ class _MobileMeal2ViewState extends State<MobileMeal2View> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, color: Theme.of(context).primaryColor),
+              Icon(icon, color: buttonColor),
               SizedBox(height: 4),
               Text(
                 label,
                 style: TextStyle(
                   fontSize: 12,
-                  color: Theme.of(context).primaryColor,
+                  color: buttonColor,
                 ),
               ),
             ],
@@ -921,7 +924,7 @@ class Header extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontFamily: 'Mealfont',
-                            fontSize: w * 0.04,
+                            fontSize: (w * 0.04).clamp(14.0, 18.0),
                             fontWeight: FontWeight.bold,
                             color:
                             Theme
@@ -941,7 +944,7 @@ class Header extends StatelessWidget {
                             textAlign: TextAlign.left,
                             style: TextStyle(
                               fontFamily: 'Mealfont',
-                              fontSize: w * 0.035,
+                              fontSize: (w * 0.035).clamp(11.0, 14.0),
                               fontWeight: FontWeight.normal,
                               color: Theme.of(context).brightness == Brightness.light ? Colors.black45 : Colors.white54,
                             ),
@@ -967,7 +970,7 @@ class Header extends StatelessWidget {
                         },
                       ),
                       IconButton(
-                        icon: Icon(Icons.menu_book_sharp),
+                        icon: Icon(Icons.article),
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
